@@ -1,8 +1,10 @@
 import { useState } from "react";
 
 import { ImportPanel } from "./components/ImportPanel";
-import { DetailsPanel } from "./components/DetailsPanel";
 import { CoordinateView } from "./components/CoordinateView";
+import { DetailsPanel } from "./components/DetailsPanel";
+import { MiniMap } from "./components/MiniMap";
+import { StatisticsPanel } from "./components/StatisticsPanel";
 
 import { CsvService } from "./services/CsvService";
 
@@ -21,16 +23,6 @@ function App() {
     const parsed =
       CsvService.parse(content);
 
-    console.log(
-      "First Pose",
-      parsed[0]
-    );
-
-    console.log(
-      "Last Pose",
-      parsed[parsed.length - 1]
-    );
-
     setPoses(parsed);
 
     if (parsed.length > 0) {
@@ -42,7 +34,7 @@ function App() {
     <div
       style={{
         padding: 20,
-        maxWidth: 1400,
+        maxWidth: 1600,
         margin: "0 auto",
       }}
     >
@@ -87,15 +79,53 @@ function App() {
 
           <div
             style={{
-              border:
-                "1px solid #444",
-              padding: 20,
-              borderRadius: 8,
+              display: "flex",
+              flexDirection:
+                "column",
+              gap: 20,
             }}
           >
-            <DetailsPanel
-              pose={selectedPose}
-            />
+            <div
+              style={{
+                border:
+                  "1px solid #444",
+                padding: 20,
+                borderRadius: 8,
+              }}
+            >
+              <DetailsPanel
+                pose={selectedPose}
+              />
+            </div>
+
+            <div
+              style={{
+                border:
+                  "1px solid #444",
+                padding: 10,
+                borderRadius: 8,
+              }}
+            >
+              <h3>Mini Map</h3>
+
+              <MiniMap
+                poses={poses}
+                selected={selectedPose}
+              />
+            </div>
+
+            <div
+              style={{
+                border:
+                  "1px solid #444",
+                padding: 20,
+                borderRadius: 8,
+              }}
+            >
+              <StatisticsPanel
+                poses={poses}
+              />
+            </div>
           </div>
         </div>
       )}
