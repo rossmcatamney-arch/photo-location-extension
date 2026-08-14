@@ -5,6 +5,7 @@ import { CoordinateView } from "./components/CoordinateView";
 import { DetailsPanel } from "./components/DetailsPanel";
 import { MiniMap } from "./components/MiniMap";
 import { StatisticsPanel } from "./components/StatisticsPanel";
+import { SearchPanel } from "./components/SearchPanel";
 
 import { CsvService } from "./services/CsvService";
 
@@ -85,6 +86,22 @@ function App() {
               gap: 20,
             }}
           >
+            <div
+              style={{
+                border:
+                  "1px solid #444",
+                padding: 20,
+                borderRadius: 8,
+              }}
+            >
+              <SearchPanel
+                poses={poses}
+                onSelect={
+                  setSelectedPose
+                }
+              />
+            </div>
+
             <div
               style={{
                 border:
