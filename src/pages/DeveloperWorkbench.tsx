@@ -1,4 +1,49 @@
+import { useState } from "react";
+
+import { workspaceService }
+  from "../services/WorkspaceService";
+
+import {
+  CapabilityScanner,
+} from "../services/CapabilityScanner";
+
 export function DeveloperWorkbench() {
+  const [report, setReport] =
+    useState<any>();
+
+  const [connectionStatus,
+    setConnectionStatus] =
+    useState(
+      "Not Connected"
+    );
+
+  const connectWorkspace =
+    async () => {
+      try {
+        const api =
+          await workspaceService
+            .connect();
+
+        const capabilityReport =
+          CapabilityScanner.scan(
+            api
+          );
+
+        setReport(
+          capabilityReport
+        );
+
+        setConnectionStatus(
+          "Connected"
+        );
+      }
+      catch {
+        setConnectionStatus(
+          "Connection Failed"
+        );
+      }
+    };
+
   return (
     <div
       style={{
@@ -8,6 +53,32 @@ export function DeveloperWorkbench() {
       <h1>
         Developer Workbench
       </h1>
+
+      <div
+        style={{
+          marginBottom: 20,
+        }}
+      >
+        <button
+          onClick={
+            connectWorkspace
+          }
+        >
+          Connect Workspace
+        </button>
+      </div>
+
+      <div
+        style={{
+          marginBottom: 20,
+        }}
+      >
+        <strong>
+          Status:
+        </strong>
+        {" "}
+        {connectionStatus}
+      </div>
 
       <div
         style={{
@@ -29,25 +100,13 @@ export function DeveloperWorkbench() {
             Capability Report
           </h2>
 
-          <p>
-            Workspace:
-            Unknown
-          </p>
-
-          <p>
-            Viewer API:
-            Unknown
-          </p>
-
-          <p>
-            Markup API:
-            Unknown
-          </p>
-
-          <p>
-            Project API:
-            Unknown
-          </p>
+          <pre>
+            {JSON.stringify(
+              report,
+              null,
+              2
+            )}
+          </pre>
         </div>
 
         <div
@@ -63,7 +122,7 @@ export function DeveloperWorkbench() {
           </h2>
 
           <p>
-            No events captured
+            Coming Soon
           </p>
         </div>
 
@@ -79,9 +138,9 @@ export function DeveloperWorkbench() {
             API Explorer
           </h2>
 
-          <button>
-            Dump APIs
-          </button>
+          <p>
+            Coming Soon
+          </p>
         </div>
 
         <div
@@ -96,9 +155,9 @@ export function DeveloperWorkbench() {
             Marker Lab
           </h2>
 
-          <button>
-            Create Marker
-          </button>
+          <p>
+            Coming Soon
+          </p>
         </div>
       </div>
     </div>

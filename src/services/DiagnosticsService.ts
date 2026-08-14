@@ -9,8 +9,8 @@ export interface DiagnosticEvent {
 }
 
 class DiagnosticsService {
-  private events:
-    DiagnosticEvent[] = [];
+  private events: DiagnosticEvent[] =
+    [];
 
   add(
     category: string,
@@ -29,7 +29,7 @@ class DiagnosticsService {
     });
 
     this.events =
-      this.events.slice(0, 200);
+      this.events.slice(0, 500);
   }
 
   getEvents() {
