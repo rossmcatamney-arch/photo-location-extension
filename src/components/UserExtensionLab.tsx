@@ -18,6 +18,12 @@ export function UserExtensionLab() {
         ),
       };
 
+      console.log(
+        "=== USER API ==="
+      );
+
+      console.log(api.user);
+
       setOutput(
         JSON.stringify(
           report,
@@ -25,15 +31,13 @@ export function UserExtensionLab() {
           2
         )
       );
-
-      console.log(
-        "=== USER API ==="
-      );
-
-      console.log(api.user);
     }
     catch (error) {
       console.error(error);
+
+      setOutput(
+        "Failed to inspect user API"
+      );
     }
   };
 
@@ -49,14 +53,6 @@ export function UserExtensionLab() {
           ),
         };
 
-        setOutput(
-          JSON.stringify(
-            report,
-            null,
-            2
-          )
-        );
-
         console.log(
           "=== EXTENSION API ==="
         );
@@ -64,9 +60,21 @@ export function UserExtensionLab() {
         console.log(
           api.extension
         );
+
+        setOutput(
+          JSON.stringify(
+            report,
+            null,
+            2
+          )
+        );
       }
       catch (error) {
         console.error(error);
+
+        setOutput(
+          "Failed to inspect extension API"
+        );
       }
     };
 
