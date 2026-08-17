@@ -33,11 +33,21 @@ class DiagnosticsService {
   }
 
   getEvents() {
-    return this.events;
+    return [...this.events];
   }
 
   clear() {
     this.events = [];
+  }
+
+  export() {
+    return {
+      exported:
+        new Date().toISOString(),
+
+      events:
+        this.events,
+    };
   }
 }
 

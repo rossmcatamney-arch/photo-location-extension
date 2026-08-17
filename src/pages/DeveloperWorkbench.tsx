@@ -7,6 +7,12 @@ import {
   CapabilityScanner,
 } from "../services/CapabilityScanner";
 
+import { EventLogPanel }
+  from "../components/EventLogPanel";
+
+import { ApiExplorer }
+  from "../components/ApiExplorer";
+
 export function DeveloperWorkbench() {
   const [report, setReport] =
     useState<any>();
@@ -54,31 +60,19 @@ export function DeveloperWorkbench() {
         Developer Workbench
       </h1>
 
-      <div
-        style={{
-          marginBottom: 20,
-        }}
+      <button
+        onClick={
+          connectWorkspace
+        }
       >
-        <button
-          onClick={
-            connectWorkspace
-          }
-        >
-          Connect Workspace
-        </button>
-      </div>
+        Connect Workspace
+      </button>
 
-      <div
-        style={{
-          marginBottom: 20,
-        }}
-      >
-        <strong>
-          Status:
-        </strong>
+      <p>
+        Status:
         {" "}
         {connectionStatus}
-      </div>
+      </p>
 
       <div
         style={{
@@ -117,47 +111,20 @@ export function DeveloperWorkbench() {
             padding: 20,
           }}
         >
-          <h2>
-            Event Log
-          </h2>
-
-          <p>
-            Coming Soon
-          </p>
+          <EventLogPanel />
         </div>
 
         <div
           style={{
+            gridColumn:
+              "span 2",
             border:
               "1px solid #444",
             borderRadius: 8,
             padding: 20,
           }}
         >
-          <h2>
-            API Explorer
-          </h2>
-
-          <p>
-            Coming Soon
-          </p>
-        </div>
-
-        <div
-          style={{
-            border:
-              "1px solid #444",
-            borderRadius: 8,
-            padding: 20,
-          }}
-        >
-          <h2>
-            Marker Lab
-          </h2>
-
-          <p>
-            Coming Soon
-          </p>
+          <ApiExplorer />
         </div>
       </div>
     </div>
