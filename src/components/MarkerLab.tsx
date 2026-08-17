@@ -7,71 +7,83 @@ export function MarkerLab() {
   const [status, setStatus] =
     useState("Ready");
 
-  const createTestIcon =
+  const testCamera =
     async () => {
       try {
         const api =
           workspaceService.getApi();
-
-        if (!api?.viewer) {
-          setStatus(
-            "Viewer API unavailable"
-          );
-          return;
-        }
 
         const camera =
           await api.viewer.getCamera();
 
         console.log(
-          "Camera",
-          camera
+          "=== CAMERA ==="
         );
 
+        console.log(camera);
+
         setStatus(
-          "Camera retrieved. Check console."
+          "Camera dumped to console"
         );
       }
       catch (error) {
         console.error(error);
 
         setStatus(
-          "Failed. Check console."
+          "Camera test failed"
         );
       }
     };
 
-  const createTestMarkup =
+  const testModels =
     async () => {
       try {
         const api =
           workspaceService.getApi();
 
-        if (!api?.markup) {
-          setStatus(
-            "Markup API unavailable"
-          );
-          return;
-        }
-
-        const markups =
-          await api.markup
-            .getSinglePointMarkups();
+        const models =
+          await api.viewer.getModels();
 
         console.log(
-          "Existing Markups",
-          markups
+          "=== MODELS ==="
         );
 
+        console.log(models);
+
         setStatus(
-          "Markup query complete. Check console."
+          "Models dumped to console"
         );
       }
       catch (error) {
         console.error(error);
 
         setStatus(
-          "Failed. Check console."
+          "Model test failed"
+        );
+      }
+    };
+
+  const inspectViewer =
+    async () => {
+      try {
+        const api =
+          workspaceService.getApi();
+
+        console.log(
+          "=== VIEWER API ==="
+        );
+
+        console.log(api.viewer);
+
+        setStatus(
+          "Viewer API dumped to console"
+        );
+      }
+      catch (error) {
+        console.error(error);
+
+        setStatus(
+          "Viewer inspection failed"
         );
       }
     };
@@ -84,23 +96,26 @@ export function MarkerLab() {
         style={{
           display: "flex",
           gap: 10,
+          flexWrap: "wrap",
           marginBottom: 10,
         }}
       >
         <button
-          onClick={
-            createTestIcon
-          }
+          onClick={testCamera}
         >
-          Test Viewer API
+          Get Camera
         </button>
 
         <button
-          onClick={
-            createTestMarkup
-          }
+          onClick={testModels}
         >
-          Test Markup API
+          Get Models
+        </button>
+
+        <button
+          onClick={inspectViewer}
+        >
+          Inspect Viewer
         </button>
       </div>
 
