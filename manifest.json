@@ -1,8 +1,8 @@
 {
   "icon": "https://rossmcatamney-arch.github.io/photo-location-extension/icon.png",
-  "title": "Photo Location Extension",
+  "title": "Photo Location",
   "url": "https://rossmcatamney-arch.github.io/photo-location-extension/",
-  "description": "Photo location viewer and developer tools for Trimble Connect projects",
+  "description": "Photo location viewer for Trimble Connect projects",
   "configCommand": "do_config",
   "extensionType": ["project"]
 }
