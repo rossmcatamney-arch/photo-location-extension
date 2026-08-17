@@ -35,21 +35,41 @@ class WorkspaceService {
           30000
         );
 
+      console.log(
+        "Workspace connected"
+      );
+
+      console.log(
+        "ui available",
+        !!this.api?.ui
+      );
+
+      console.log(
+        "setMenu available",
+        !!this.api?.ui?.setMenu
+      );
+
       try {
         if (this.api?.ui?.setMenu) {
-          await this.api.ui.setMenu({
-            title:
-              "Photo Location",
+          console.log(
+            "Registering menu..."
+          );
 
-            icon:
-              "https://rossmcatamney-arch.github.io/photo-location-extension/icon.png",
+          const result =
+            await this.api.ui.setMenu({
+              title:
+                "Photo Location",
 
-            command:
-              "PHOTO_LOCATION_OPEN",
-          });
+              icon:
+                "https://rossmcatamney-arch.github.io/photo-location-extension/icon.png",
+
+              command:
+                "PHOTO_LOCATION_OPEN",
+            });
 
           console.log(
-            "Menu registration successful"
+            "Menu registration result",
+            result
           );
         }
       }

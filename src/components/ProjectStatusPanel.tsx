@@ -1,34 +1,98 @@
-import { workspaceService } from "../services/WorkspaceService";
+import { useState } from "react";
 
-interface Props {
-  photoCount: number;
-  source: string;
-}
+import {
+  workspaceService,
+} from "../services/WorkspaceService";
 
-export function ProjectStatusPanel({
-  photoCount,
-  source,
-}: Props) {
+export function WorkspaceInspector() {
+  const [output, setOutput] =
+    useState("");
+
+  const inspectWorkspace =
+    () => {
+      const api =
+        workspaceService.getApi();
+
+      if (!api) {
+        setOutput(
+          "Workspace not connected"
+        );
+
+        return;
+      }
+
+      const report = {
+        rootKeys:
+          Object.keys(api),
+
+        userKeys:
+          api.user
+            ? Object.keys(
+                api.user
+              )
+            : [],
+
+        projectKeys:
+          api.project
+            ? Object.keys(
+                api.project
+              )
+            : [],
+
+        viewerKeys:
+          api.viewer
+            ? Object.keys(
+                api.viewer
+              )
+            : [],
+
+        extensionKeys:
+          api.extension
+            ? Object.keys(
+                api.extension
+              )
+            : [],
+      };
+
+      console.log(
+        "=== WORKSPACE REPORT ==="
+      );
+
+      console.log(
+        report
+      );
+
+      setOutput(
+        JSON.stringify(
+          report,
+          null,
+          2
+        )
+      );
+    };
+
   return (
     <div>
-      <h2>Project Status</h2>
+      <h2>
+        Workspace Inspector
+      </h2>
 
-      <p>
-        <strong>Photos Loaded:</strong>{" "}
-        {photoCount}
-      </p>
+      <button
+        onClick={
+          inspectWorkspace
+        }
+      >
+        Inspect Workspace
+      </button>
 
-      <p>
-        <strong>Data Source:</strong>{" "}
-        {source}
-      </p>
-
-      <p>
-        <strong>Workspace Connected:</strong>{" "}
-        {workspaceService.getConnected()
-          ? "Yes"
-          : "No"}
-      </p>
+      <pre
+        style={{
+          maxHeight: 600,
+          overflow: "auto",
+        }}
+      >
+        {output}
+      </pre>
     </div>
   );
 }

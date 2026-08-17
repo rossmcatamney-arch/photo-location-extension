@@ -1,96 +1,14 @@
 import { useState } from "react";
 
-import { workspaceService }
-  from "../services/WorkspaceService";
+import {
+  workspaceService,
+} from "../services/WorkspaceService";
 
 export function ExtensionLab() {
   const [output, setOutput] =
     useState("");
 
-  const getHost = async () => {
-    try {
-      const api =
-        workspaceService.getApi();
-
-      const result =
-        await api.extension.getHost();
-
-      console.log(
-        "=== HOST ==="
-      );
-
-      console.log(result);
-
-      setOutput(
-        JSON.stringify(
-          result,
-          null,
-          2
-        )
-      );
-    }
-    catch (error: any) {
-      console.error(
-        "=== HOST ERROR ==="
-      );
-
-      console.error(error);
-
-      setOutput(
-        JSON.stringify(
-          error,
-          Object.getOwnPropertyNames(
-            error
-          ),
-          2
-        )
-      );
-    }
-  };
-
-  const getPermission =
-    async () => {
-      try {
-        const api =
-          workspaceService.getApi();
-
-      const result =
-        await api.extension.getPermission();
-
-        console.log(
-          "=== PERMISSION ==="
-        );
-
-        console.log(result);
-
-        setOutput(
-          JSON.stringify(
-            result,
-            null,
-            2
-          )
-        );
-      }
-      catch (error: any) {
-        console.error(
-          "=== PERMISSION ERROR ==="
-        );
-
-        console.error(error);
-
-        setOutput(
-          JSON.stringify(
-            error,
-            Object.getOwnPropertyNames(
-              error
-            ),
-            2
-          )
-        );
-      }
-    };
-
-  const getStatus =
+  const getAccessToken =
     async () => {
       try {
         const api =
@@ -98,27 +16,35 @@ export function ExtensionLab() {
 
         const result =
           await api.extension
-            .getStatusMessage();
+            .requestPermission(
+              "accesstoken"
+            );
 
         console.log(
-          "=== STATUS ==="
+          "PERMISSION RESULT",
+          result
         );
 
-        console.log(result);
+        console.log(
+          "RESULT TYPE",
+          typeof result
+        );
 
         setOutput(
           JSON.stringify(
-            result,
+            {
+              result,
+              type:
+                typeof result,
+              length:
+                result?.length,
+            },
             null,
             2
           )
         );
       }
       catch (error: any) {
-        console.error(
-          "=== STATUS ERROR ==="
-        );
-
         console.error(error);
 
         setOutput(
@@ -139,38 +65,15 @@ export function ExtensionLab() {
         Extension Lab
       </h2>
 
-      <div
-        style={{
-          display: "flex",
-          gap: 10,
-          marginBottom: 10,
-          flexWrap: "wrap",
-        }}
+      <button
+        onClick={getAccessToken}
       >
-        <button
-          onClick={getHost}
-        >
-          Get Host
-        </button>
-
-        <button
-          onClick={
-            getPermission
-          }
-        >
-          Get Permission
-        </button>
-
-        <button
-          onClick={getStatus}
-        >
-          Get Status
-        </button>
-      </div>
+        Request Access Token
+      </button>
 
       <pre
         style={{
-          maxHeight: 300,
+          maxHeight: 400,
           overflow: "auto",
         }}
       >

@@ -45,7 +45,22 @@ export function WorkspaceInspector() {
                 api.viewer
               )
             : [],
+
+        extensionKeys:
+          api.extension
+            ? Object.keys(
+                api.extension
+              )
+            : [],
       };
+
+      console.log(
+        "=== WORKSPACE REPORT ==="
+      );
+
+      console.log(
+        report
+      );
 
       setOutput(
         JSON.stringify(
