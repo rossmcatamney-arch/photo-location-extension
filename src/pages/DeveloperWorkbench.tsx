@@ -1,4 +1,7 @@
-import { useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
 
 import { workspaceService }
   from "../services/WorkspaceService";
@@ -32,15 +35,50 @@ import { ProjectLab }
 import { UserExtensionLab }
   from "../components/UserExtensionLab";
 
+import { ExtensionLab }
+  from "../components/ExtensionLab";
+
+import { FileDiscoveryLab }
+  from "../components/FileDiscoveryLab";
+
+import {
+  PhotoLocationHome,
+} from "../components/PhotoLocationHome";
+
+import {
+  ProjectFilesLab,
+} from "../components/ProjectFilesLab";
+
+import {
+  ExtensionMethodsLab,
+} from "../components/ExtensionMethodsLab";
+
+import {
+  ProjectMethodsLab,
+} from "../components/ProjectMethodsLab";
+
 export function DeveloperWorkbench() {
   const [report, setReport] =
     useState<any>();
 
-  const [connectionStatus,
-    setConnectionStatus] =
-    useState(
-      "Not Connected"
-    );
+  const [
+    connectionStatus,
+    setConnectionStatus,
+  ] = useState(
+    "Connecting..."
+  );
+
+  const [
+    projectName,
+    setProjectName,
+  ] = useState(
+    "Loading..."
+  );
+
+  const [
+    projectId,
+    setProjectId,
+  ] = useState("");
 
   const connectWorkspace =
     async () => {
@@ -57,6 +95,19 @@ export function DeveloperWorkbench() {
           capabilityReport
         );
 
+        const project =
+          await api.project
+            .getCurrentProject();
+
+        setProjectName(
+          project?.name ??
+          "Unknown Project"
+        );
+
+        setProjectId(
+          project?.id ?? ""
+        );
+
         setConnectionStatus(
           "Connected"
         );
@@ -67,8 +118,16 @@ export function DeveloperWorkbench() {
         setConnectionStatus(
           "Connection Failed"
         );
+
+        setProjectName(
+          "Project Not Available"
+        );
       }
     };
+
+  useEffect(() => {
+    connectWorkspace();
+  }, []);
 
   return (
     <div
@@ -111,7 +170,7 @@ export function DeveloperWorkbench() {
           connectWorkspace
         }
       >
-        Connect Workspace
+        Reconnect Workspace
       </button>
 
       <div
@@ -123,6 +182,61 @@ export function DeveloperWorkbench() {
           marginTop: 20,
         }}
       >
+        <div
+          style={{
+            gridColumn:
+              "span 2",
+          }}
+        >
+          <PhotoLocationHome
+            projectName={
+              projectName
+            }
+            projectId={
+              projectId
+            }
+          />
+        </div>
+
+        <div
+          style={{
+            gridColumn:
+              "span 2",
+          }}
+        >
+          <ProjectFilesLab
+            projectId={
+              projectId
+            }
+          />
+        </div>
+
+        <div
+          style={{
+            gridColumn:
+              "span 2",
+            border:
+              "1px solid #444",
+            padding: 20,
+            borderRadius: 8,
+          }}
+        >
+          <ExtensionMethodsLab />
+        </div>
+
+        <div
+          style={{
+            gridColumn:
+              "span 2",
+            border:
+              "1px solid #444",
+            padding: 20,
+            borderRadius: 8,
+          }}
+        >
+          <ProjectMethodsLab />
+        </div>
+
         <div
           style={{
             border:
@@ -232,6 +346,32 @@ export function DeveloperWorkbench() {
           }}
         >
           <UserExtensionLab />
+        </div>
+
+        <div
+          style={{
+            gridColumn:
+              "span 2",
+            border:
+              "1px solid #444",
+            padding: 20,
+            borderRadius: 8,
+          }}
+        >
+          <ExtensionLab />
+        </div>
+
+        <div
+          style={{
+            gridColumn:
+              "span 2",
+            border:
+              "1px solid #444",
+            padding: 20,
+            borderRadius: 8,
+          }}
+        >
+          <FileDiscoveryLab />
         </div>
       </div>
     </div>

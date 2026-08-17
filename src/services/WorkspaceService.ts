@@ -39,7 +39,7 @@ class WorkspaceService {
         if (this.api?.ui?.setMenu) {
           await this.api.ui.setMenu({
             title:
-              "Photo Location Extension",
+              "Photo Location",
 
             icon:
               "https://rossmcatamney-arch.github.io/photo-location-extension/icon.png",

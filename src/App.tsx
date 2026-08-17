@@ -54,7 +54,7 @@ function App() {
         }}
       >
         <h1>
-          Photo Location Extension
+          Photo Location
         </h1>
 
         <div>

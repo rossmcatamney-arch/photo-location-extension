@@ -3,100 +3,62 @@ import { useState } from "react";
 import { workspaceService }
   from "../services/WorkspaceService";
 
-export function ProjectLab() {
+export function ExtensionLab() {
   const [output, setOutput] =
     useState("");
 
-  const getCurrentProject =
+  const getHost = async () => {
+    try {
+      const api =
+        workspaceService.getApi();
+
+      const result =
+        await api.extension.getHost();
+
+      console.log(
+        "=== HOST ==="
+      );
+
+      console.log(result);
+
+      setOutput(
+        JSON.stringify(
+          result,
+          null,
+          2
+        )
+      );
+    }
+    catch (error: any) {
+      console.error(
+        "=== HOST ERROR ==="
+      );
+
+      console.error(error);
+
+      setOutput(
+        JSON.stringify(
+          error,
+          Object.getOwnPropertyNames(
+            error
+          ),
+          2
+        )
+      );
+    }
+  };
+
+  const getPermission =
     async () => {
       try {
         const api =
           workspaceService.getApi();
 
-        const result =
-          await api.project
-            .getCurrentProject();
+      const result =
+        await api.extension.getPermission();
 
         console.log(
-          "=== CURRENT PROJECT ==="
-        );
-
-        console.log(result);
-
-        setOutput(
-          JSON.stringify(
-            result,
-            null,
-            2
-          )
-        );
-      }
-      catch (error: any) {
-        console.error(error);
-
-        setOutput(
-          JSON.stringify(
-            error,
-            Object.getOwnPropertyNames(error),
-            2
-          )
-        );
-      }
-    };
-
-  const getMembers =
-    async () => {
-      try {
-        const api =
-          workspaceService.getApi();
-
-        const result =
-          await api.project
-            .getMembers();
-
-        console.log(
-          "=== MEMBERS ==="
-        );
-
-        console.log(result);
-
-        setOutput(
-          JSON.stringify(
-            result,
-            null,
-            2
-          )
-        );
-      }
-      catch (error: any) {
-        console.error(
-          "=== MEMBERS ERROR ==="
-        );
-
-        console.error(error);
-
-        setOutput(
-          JSON.stringify(
-            error,
-            Object.getOwnPropertyNames(error),
-            2
-          )
-        );
-      }
-    };
-
-  const getSettings =
-    async () => {
-      try {
-        const api =
-          workspaceService.getApi();
-
-        const result =
-          await api.project
-            .getSettings();
-
-        console.log(
-          "=== SETTINGS ==="
+          "=== PERMISSION ==="
         );
 
         console.log(result);
@@ -111,7 +73,7 @@ export function ProjectLab() {
       }
       catch (error: any) {
         console.error(
-          "=== SETTINGS ERROR ==="
+          "=== PERMISSION ERROR ==="
         );
 
         console.error(error);
@@ -119,7 +81,52 @@ export function ProjectLab() {
         setOutput(
           JSON.stringify(
             error,
-            Object.getOwnPropertyNames(error),
+            Object.getOwnPropertyNames(
+              error
+            ),
+            2
+          )
+        );
+      }
+    };
+
+  const getStatus =
+    async () => {
+      try {
+        const api =
+          workspaceService.getApi();
+
+        const result =
+          await api.extension
+            .getStatusMessage();
+
+        console.log(
+          "=== STATUS ==="
+        );
+
+        console.log(result);
+
+        setOutput(
+          JSON.stringify(
+            result,
+            null,
+            2
+          )
+        );
+      }
+      catch (error: any) {
+        console.error(
+          "=== STATUS ERROR ==="
+        );
+
+        console.error(error);
+
+        setOutput(
+          JSON.stringify(
+            error,
+            Object.getOwnPropertyNames(
+              error
+            ),
             2
           )
         );
@@ -128,39 +135,42 @@ export function ProjectLab() {
 
   return (
     <div>
-      <h2>Project Lab</h2>
+      <h2>
+        Extension Lab
+      </h2>
 
       <div
         style={{
           display: "flex",
           gap: 10,
           marginBottom: 10,
+          flexWrap: "wrap",
         }}
       >
         <button
+          onClick={getHost}
+        >
+          Get Host
+        </button>
+
+        <button
           onClick={
-            getCurrentProject
+            getPermission
           }
         >
-          Current Project
+          Get Permission
         </button>
 
         <button
-          onClick={getMembers}
+          onClick={getStatus}
         >
-          Members
-        </button>
-
-        <button
-          onClick={getSettings}
-        >
-          Settings
+          Get Status
         </button>
       </div>
 
       <pre
         style={{
-          maxHeight: 400,
+          maxHeight: 300,
           overflow: "auto",
         }}
       >
