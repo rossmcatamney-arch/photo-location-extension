@@ -7,44 +7,42 @@ export function MarkerLab() {
   const [status, setStatus] =
     useState("Ready");
 
-  const getCamera =
+  const inspectViewer =
     async () => {
       try {
         const api =
           workspaceService.getApi();
 
         console.log(
-          "=== VIEWER OBJECT ==="
+          "=== API ==="
+        );
+
+        console.log(api);
+
+        console.log(
+          "=== VIEWER ==="
         );
 
         console.log(api.viewer);
 
-        const camera =
-          await api.viewer.getCamera();
-
         console.log(
-          "=== CAMERA ==="
+          "=== VIEWER KEYS ==="
         );
 
-        console.log(camera);
+        console.log(
+          Object.keys(api.viewer)
+        );
 
         setStatus(
-          "Camera dumped to console"
+          "Viewer dumped to console"
         );
       }
       catch (error: any) {
-        console.error(
-          "=== CAMERA ERROR ==="
-        );
-
         console.error(error);
 
         setStatus(
-          JSON.stringify(
-            error,
-            null,
-            2
-          )
+          error?.message ??
+          "Unknown error"
         );
       }
     };
@@ -70,48 +68,14 @@ export function MarkerLab() {
       }
       catch (error: any) {
         console.error(
-          "=== MODEL ERROR ==="
+          "=== MODELS ERROR ==="
         );
 
         console.error(error);
 
         setStatus(
-          JSON.stringify(
-            error,
-            null,
-            2
-          )
-        );
-      }
-    };
-
-  const inspectViewer =
-    async () => {
-      try {
-        const api =
-          workspaceService.getApi();
-
-        console.log(
-          "=== VIEWER API ==="
-        );
-
-        console.log(api.viewer);
-
-        console.dir(api.viewer);
-
-        setStatus(
-          "Viewer dumped to console"
-        );
-      }
-      catch (error: any) {
-        console.error(error);
-
-        setStatus(
-          JSON.stringify(
-            error,
-            null,
-            2
-          )
+          error?.message ??
+          "Unknown error"
         );
       }
     };
@@ -124,26 +88,20 @@ export function MarkerLab() {
         style={{
           display: "flex",
           gap: 10,
-          flexWrap: "wrap",
-          marginBottom: 10,
         }}
       >
         <button
-          onClick={getCamera}
+          onClick={
+            inspectViewer
+          }
         >
-          Get Camera
+          Inspect Viewer
         </button>
 
         <button
           onClick={getModels}
         >
           Get Models
-        </button>
-
-        <button
-          onClick={inspectViewer}
-        >
-          Inspect Viewer
         </button>
       </div>
 
