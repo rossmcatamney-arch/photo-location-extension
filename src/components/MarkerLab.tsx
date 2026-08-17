@@ -7,11 +7,18 @@ export function MarkerLab() {
   const [status, setStatus] =
     useState("Ready");
 
-  const testViewer =
+  const createTestIcon =
     async () => {
       try {
         const api =
           workspaceService.getApi();
+
+        if (!api?.viewer) {
+          setStatus(
+            "Viewer API unavailable"
+          );
+          return;
+        }
 
         const camera =
           await api.viewer.getCamera();
@@ -22,51 +29,56 @@ export function MarkerLab() {
         );
 
         setStatus(
-          "Camera retrieved. Check Console."
+          "Camera retrieved. Check console."
         );
       }
       catch (error) {
         console.error(error);
 
         setStatus(
-          "Viewer test failed."
+          "Failed. Check console."
         );
       }
     };
 
-  const testMarkup =
+  const createTestMarkup =
     async () => {
       try {
         const api =
           workspaceService.getApi();
+
+        if (!api?.markup) {
+          setStatus(
+            "Markup API unavailable"
+          );
+          return;
+        }
 
         const markups =
           await api.markup
             .getSinglePointMarkups();
 
         console.log(
-          "Markups",
+          "Existing Markups",
           markups
         );
 
         setStatus(
-          "Markup query complete. Check Console."
+          "Markup query complete. Check console."
         );
       }
       catch (error) {
         console.error(error);
 
         setStatus(
-          "Markup test failed."
+          "Failed. Check console."
         );
       }
     };
 
   return (
     <div>
-      <h2>
-        Marker Lab
-      </h2>
+      <h2>Marker Lab</h2>
 
       <div
         style={{
@@ -76,13 +88,17 @@ export function MarkerLab() {
         }}
       >
         <button
-          onClick={testViewer}
+          onClick={
+            createTestIcon
+          }
         >
           Test Viewer API
         </button>
 
         <button
-          onClick={testMarkup}
+          onClick={
+            createTestMarkup
+          }
         >
           Test Markup API
         </button>
