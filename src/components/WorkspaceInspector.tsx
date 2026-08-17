@@ -1,7 +1,8 @@
 import { useState } from "react";
 
-import { workspaceService }
-  from "../services/WorkspaceService";
+import {
+  workspaceService,
+} from "../services/WorkspaceService";
 
 export function WorkspaceInspector() {
   const [output, setOutput] =
@@ -15,16 +16,45 @@ export function WorkspaceInspector() {
       setOutput(
         "Workspace not connected"
       );
-
       return;
     }
 
-    const rootProperties =
-      Object.keys(api);
+    const report = {
+      rootKeys:
+        Object.keys(api),
+
+      viewerKeys:
+        api.viewer
+          ? Object.keys(
+              api.viewer
+            )
+          : [],
+
+      markupKeys:
+        api.markup
+          ? Object.keys(
+              api.markup
+            )
+          : [],
+
+      projectKeys:
+        api.project
+          ? Object.keys(
+              api.project
+            )
+          : [],
+
+      uiKeys:
+        api.ui
+          ? Object.keys(
+              api.ui
+            )
+          : [],
+    };
 
     setOutput(
       JSON.stringify(
-        rootProperties,
+        report,
         null,
         2
       )
@@ -38,19 +68,17 @@ export function WorkspaceInspector() {
       </h2>
 
       <button
-        onClick={inspectWorkspace}
+        onClick={
+          inspectWorkspace
+        }
       >
-        Inspect Root Workspace
+        Inspect Workspace
       </button>
 
       <pre
         style={{
-          marginTop: 10,
-          maxHeight: 400,
+          maxHeight: 500,
           overflow: "auto",
-          border: "1px solid #444",
-          padding: 10,
-          borderRadius: 4,
         }}
       >
         {output}
