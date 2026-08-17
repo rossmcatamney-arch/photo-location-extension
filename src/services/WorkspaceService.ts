@@ -35,6 +35,31 @@ class WorkspaceService {
           30000
         );
 
+      try {
+        if (this.api?.ui?.setMenu) {
+          await this.api.ui.setMenu({
+            title:
+              "Photo Location Extension",
+
+            icon:
+              "https://rossmcatamney-arch.github.io/photo-location-extension/icon.png",
+
+            command:
+              "PHOTO_LOCATION_OPEN",
+          });
+
+          console.log(
+            "Menu registration successful"
+          );
+        }
+      }
+      catch (menuError) {
+        console.error(
+          "Menu registration failed",
+          menuError
+        );
+      }
+
       return this.api;
     }
     catch (error) {
