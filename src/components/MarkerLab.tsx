@@ -7,7 +7,7 @@ export function MarkerLab() {
   const [status, setStatus] =
     useState("Ready");
 
-  const testCamera =
+  const getCamera =
     async () => {
       try {
         const api =
@@ -26,16 +26,23 @@ export function MarkerLab() {
           "Camera dumped to console"
         );
       }
-      catch (error) {
+      catch (error: any) {
+        console.error(
+          "=== CAMERA ERROR ==="
+        );
+
         console.error(error);
 
         setStatus(
-          "Camera test failed"
+          `Camera failed: ${
+            error?.message ??
+            "Unknown error"
+          }`
         );
       }
     };
 
-  const testModels =
+  const getModels =
     async () => {
       try {
         const api =
@@ -54,11 +61,18 @@ export function MarkerLab() {
           "Models dumped to console"
         );
       }
-      catch (error) {
+      catch (error: any) {
+        console.error(
+          "=== MODEL ERROR ==="
+        );
+
         console.error(error);
 
         setStatus(
-          "Model test failed"
+          `Models failed: ${
+            error?.message ??
+            "Unknown error"
+          }`
         );
       }
     };
@@ -76,14 +90,21 @@ export function MarkerLab() {
         console.log(api.viewer);
 
         setStatus(
-          "Viewer API dumped to console"
+          "Viewer dumped to console"
         );
       }
-      catch (error) {
+      catch (error: any) {
+        console.error(
+          "=== VIEWER ERROR ==="
+        );
+
         console.error(error);
 
         setStatus(
-          "Viewer inspection failed"
+          `Viewer failed: ${
+            error?.message ??
+            "Unknown error"
+          }`
         );
       }
     };
@@ -101,13 +122,13 @@ export function MarkerLab() {
         }}
       >
         <button
-          onClick={testCamera}
+          onClick={getCamera}
         >
           Get Camera
         </button>
 
         <button
-          onClick={testModels}
+          onClick={getModels}
         >
           Get Models
         </button>
