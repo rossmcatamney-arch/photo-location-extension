@@ -7,34 +7,24 @@ export function MarkerLab() {
   const [status, setStatus] =
     useState("Ready");
 
-  const inspectViewer =
+  const getCurrentProject =
     async () => {
       try {
         const api =
           workspaceService.getApi();
 
-        console.log(
-          "=== API ==="
-        );
-
-        console.log(api);
+        const project =
+          await api.project
+            .getCurrentProject();
 
         console.log(
-          "=== VIEWER ==="
+          "=== CURRENT PROJECT ==="
         );
 
-        console.log(api.viewer);
-
-        console.log(
-          "=== VIEWER KEYS ==="
-        );
-
-        console.log(
-          Object.keys(api.viewer)
-        );
+        console.log(project);
 
         setStatus(
-          "Viewer dumped to console"
+          "Current project dumped to console"
         );
       }
       catch (error: any) {
@@ -42,66 +32,104 @@ export function MarkerLab() {
 
         setStatus(
           error?.message ??
-          "Unknown error"
+          "Project query failed"
         );
       }
     };
 
-  const getModels =
+  const getProjectMembers =
     async () => {
       try {
         const api =
           workspaceService.getApi();
 
-        const models =
-          await api.viewer.getModels();
+        const members =
+          await api.project
+            .getMembers();
 
         console.log(
-          "=== MODELS ==="
+          "=== PROJECT MEMBERS ==="
         );
 
-        console.log(models);
+        console.log(members);
 
         setStatus(
-          "Models dumped to console"
+          "Project members dumped to console"
         );
       }
       catch (error: any) {
-        console.error(
-          "=== MODELS ERROR ==="
-        );
-
         console.error(error);
 
         setStatus(
           error?.message ??
-          "Unknown error"
+          "Member query failed"
+        );
+      }
+    };
+
+  const getProjectSettings =
+    async () => {
+      try {
+        const api =
+          workspaceService.getApi();
+
+        const settings =
+          await api.project
+            .getSettings();
+
+        console.log(
+          "=== PROJECT SETTINGS ==="
+        );
+
+        console.log(settings);
+
+        setStatus(
+          "Project settings dumped to console"
+        );
+      }
+      catch (error: any) {
+        console.error(error);
+
+        setStatus(
+          error?.message ??
+          "Settings query failed"
         );
       }
     };
 
   return (
     <div>
-      <h2>Marker Lab</h2>
+      <h2>Project Lab</h2>
 
       <div
         style={{
           display: "flex",
           gap: 10,
+          flexWrap: "wrap",
         }}
       >
         <button
           onClick={
-            inspectViewer
+            getCurrentProject
           }
         >
-          Inspect Viewer
+          Get Current Project
         </button>
 
         <button
-          onClick={getModels}
+          onClick={
+            getProjectMembers
+          }
         >
-          Get Models
+          Get Members
+        </button>
+
+        <button
+          onClick={
+            getProjectSettings
+          }
+        >
+          Get Settings
         </button>
       </div>
 
