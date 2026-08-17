@@ -13,6 +13,12 @@ export function MarkerLab() {
         const api =
           workspaceService.getApi();
 
+        console.log(
+          "=== VIEWER OBJECT ==="
+        );
+
+        console.log(api.viewer);
+
         const camera =
           await api.viewer.getCamera();
 
@@ -34,10 +40,11 @@ export function MarkerLab() {
         console.error(error);
 
         setStatus(
-          `Camera failed: ${
-            error?.message ??
-            "Unknown error"
-          }`
+          JSON.stringify(
+            error,
+            null,
+            2
+          )
         );
       }
     };
@@ -69,10 +76,11 @@ export function MarkerLab() {
         console.error(error);
 
         setStatus(
-          `Models failed: ${
-            error?.message ??
-            "Unknown error"
-          }`
+          JSON.stringify(
+            error,
+            null,
+            2
+          )
         );
       }
     };
@@ -89,22 +97,21 @@ export function MarkerLab() {
 
         console.log(api.viewer);
 
+        console.dir(api.viewer);
+
         setStatus(
           "Viewer dumped to console"
         );
       }
       catch (error: any) {
-        console.error(
-          "=== VIEWER ERROR ==="
-        );
-
         console.error(error);
 
         setStatus(
-          `Viewer failed: ${
-            error?.message ??
-            "Unknown error"
-          }`
+          JSON.stringify(
+            error,
+            null,
+            2
+          )
         );
       }
     };
@@ -140,7 +147,9 @@ export function MarkerLab() {
         </button>
       </div>
 
-      <p>{status}</p>
+      <pre>
+        {status}
+      </pre>
     </div>
   );
 }
