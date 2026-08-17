@@ -19,19 +19,41 @@ export interface CapabilityReport {
 }
 
 export class CapabilityScanner {
-  static scan(api: any): CapabilityReport {
-    const methods = (
-      obj: any
-    ): string[] => {
-      if (!obj) {
-        return [];
-      }
+  private static getMembers(
+    obj: any
+  ): string[] {
+    if (!obj) {
+      return [];
+    }
 
-      return Object.getOwnPropertyNames(
-        Object.getPrototypeOf(obj)
+    const members = new Set<string>();
+
+    let current = obj;
+
+    while (
+      current &&
+      current !== Object.prototype
+    ) {
+      Object.getOwnPropertyNames(
+        current
+      ).forEach((name) =>
+        members.add(name)
       );
-    };
 
+      current =
+        Object.getPrototypeOf(
+          current
+        );
+    }
+
+    return Array.from(
+      members
+    ).sort();
+  }
+
+  static scan(
+    api: any
+  ): CapabilityReport {
     return {
       workspaceConnected:
         !!api,
@@ -49,16 +71,24 @@ export class CapabilityScanner {
         !!api?.ui,
 
       viewerMethods:
-        methods(api?.viewer),
+        this.getMembers(
+          api?.viewer
+        ),
 
       markupMethods:
-        methods(api?.markup),
+        this.getMembers(
+          api?.markup
+        ),
 
       projectMethods:
-        methods(api?.project),
+        this.getMembers(
+          api?.project
+        ),
 
       uiMethods:
-        methods(api?.ui),
+        this.getMembers(
+          api?.ui
+        ),
     };
   }
 }
