@@ -1,38 +1,33 @@
+import { workspaceService } from "../services/WorkspaceService";
+
 interface Props {
   photoCount: number;
-
   source: string;
-
-  workspaceConnected: boolean;
 }
 
 export function ProjectStatusPanel({
   photoCount,
   source,
-  workspaceConnected,
 }: Props) {
   return (
     <div>
-      <h3>Project Status</h3>
+      <h2>Project Status</h2>
 
       <p>
-        <strong>Photo Count:</strong>
-        {" "}
+        <strong>Photos Loaded:</strong>{" "}
         {photoCount}
       </p>
 
       <p>
-        <strong>Data Source:</strong>
-        {" "}
+        <strong>Data Source:</strong>{" "}
         {source}
       </p>
 
       <p>
-        <strong>Workspace:</strong>
-        {" "}
-        {workspaceConnected
-          ? "Connected"
-          : "Disconnected"}
+        <strong>Workspace Connected:</strong>{" "}
+        {workspaceService.getConnected()
+          ? "Yes"
+          : "No"}
       </p>
     </div>
   );

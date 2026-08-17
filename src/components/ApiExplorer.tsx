@@ -1,11 +1,31 @@
 import { useState } from "react";
 
-import { workspaceService }
-  from "../services/WorkspaceService";
+import { workspaceService } from "../services/WorkspaceService";
 
 export function ApiExplorer() {
   const [output, setOutput] =
     useState("");
+
+  const dumpRootApi = () => {
+    const api =
+      workspaceService.getApi();
+
+    if (!api) {
+      setOutput(
+        "Workspace API not connected"
+      );
+
+      return;
+    }
+
+    setOutput(
+      JSON.stringify(
+        Object.keys(api),
+        null,
+        2
+      )
+    );
+  };
 
   const inspectApi = (
     name: string,
@@ -15,7 +35,6 @@ export function ApiExplorer() {
       setOutput(
         `${name} API not available`
       );
-
       return;
     }
 
@@ -55,6 +74,10 @@ export function ApiExplorer() {
           marginBottom: 10,
         }}
       >
+        <button onClick={dumpRootApi}>
+          Root API
+        </button>
+
         <button
           onClick={() =>
             inspectApi(
@@ -102,7 +125,7 @@ export function ApiExplorer() {
 
       <pre
         style={{
-          maxHeight: 400,
+          maxHeight: 500,
           overflow: "auto",
           border: "1px solid #444",
           padding: 10,
