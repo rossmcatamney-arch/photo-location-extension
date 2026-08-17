@@ -26,8 +26,11 @@ import { SystemInformationPanel }
 import { DiagnosticsExportPanel }
   from "../components/DiagnosticsExportPanel";
 
-import { MarkerLab }
-  from "../components/MarkerLab";
+import { ProjectLab }
+  from "../components/ProjectLab";
+
+import { UserExtensionLab }
+  from "../components/UserExtensionLab";
 
 export function DeveloperWorkbench() {
   const [report, setReport] =
@@ -43,8 +46,7 @@ export function DeveloperWorkbench() {
     async () => {
       try {
         const api =
-          await workspaceService
-            .connect();
+          await workspaceService.connect();
 
         const capabilityReport =
           CapabilityScanner.scan(
@@ -216,7 +218,20 @@ export function DeveloperWorkbench() {
             borderRadius: 8,
           }}
         >
-          <MarkerLab />
+          <ProjectLab />
+        </div>
+
+        <div
+          style={{
+            gridColumn:
+              "span 2",
+            border:
+              "1px solid #444",
+            padding: 20,
+            borderRadius: 8,
+          }}
+        >
+          <UserExtensionLab />
         </div>
       </div>
     </div>

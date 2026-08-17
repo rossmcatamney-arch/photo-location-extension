@@ -1,5 +1,5 @@
 export const AppInfo = {
-  name: "Photo Location Extension",
+  name: "Photo Location",
 
   version: "0.6.0",
 
