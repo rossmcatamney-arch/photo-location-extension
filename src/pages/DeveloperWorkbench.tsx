@@ -57,6 +57,10 @@ import {
   ProjectMethodsLab,
 } from "../components/ProjectMethodsLab";
 
+import {
+  CoreSdkLab,
+} from "../components/CoreSdkLab";
+
 export function DeveloperWorkbench() {
   const [report, setReport] =
     useState<any>();
@@ -209,6 +213,19 @@ export function DeveloperWorkbench() {
               projectId
             }
           />
+        </div>
+
+        <div
+          style={{
+            gridColumn:
+              "span 2",
+            border:
+              "1px solid #444",
+            padding: 20,
+            borderRadius: 8,
+          }}
+        >
+          <CoreSdkLab />
         </div>
 
         <div
@@ -376,4 +393,4 @@ export function DeveloperWorkbench() {
       </div>
     </div>
   );
-}
+}         

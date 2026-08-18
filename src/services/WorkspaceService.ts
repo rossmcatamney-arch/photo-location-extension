@@ -40,6 +40,26 @@ class WorkspaceService {
       );
 
       console.log(
+        "Workspace API",
+        this.api
+      );
+
+      console.log(
+        "Project API",
+        this.api?.project
+      );
+
+      console.log(
+        "Files API",
+        this.api?.files
+      );
+
+      console.log(
+        "Data API",
+        this.api?.data
+      );
+
+      console.log(
         "ui available",
         !!this.api?.ui
       );

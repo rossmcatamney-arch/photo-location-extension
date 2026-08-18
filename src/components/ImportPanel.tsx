@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 interface Props {
   onLoaded: (
     content: string
@@ -7,25 +9,102 @@ interface Props {
 export function ImportPanel({
   onLoaded,
 }: Props) {
+  const [fileName, setFileName] =
+    useState<string>("");
+
+  const [recordCount, setRecordCount] =
+    useState<number>(0);
+
+  const [status, setStatus] =
+    useState<string>("Ready");
+
   const handleFileChange = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file =
-      event.target.files?.[0];
+    try {
+      const file =
+        event.target.files?.[0];
 
-    if (!file) return;
+      if (!file) {
+        return;
+      }
 
-    const text =
-      await file.text();
+      setStatus("Loading CSV...");
+      setFileName(file.name);
 
-    onLoaded(text);
+      const text =
+        await file.text();
+
+      const rows =
+        text
+          .split(/\r?\n/)
+          .filter(
+            line =>
+              line.trim().length > 0
+          );
+
+      setRecordCount(
+        Math.max(0, rows.length - 1)
+      );
+
+      onLoaded(text);
+
+      setStatus("Loaded");
+    } catch (error) {
+      console.error(error);
+
+      setStatus("Failed");
+
+      setRecordCount(0);
+    }
   };
 
   return (
-    <input
-      type="file"
-      accept=".csv,.txt"
-      onChange={handleFileChange}
-    />
+    <div
+      style={{
+        border: "1px solid #444",
+        borderRadius: 8,
+        padding: 20,
+        marginBottom: 20,
+      }}
+    >
+      <h3
+        style={{
+          marginTop: 0,
+        }}
+      >
+        Import CSV
+      </h3>
+
+      <input
+        type="file"
+        accept=".csv,.txt"
+        onChange={handleFileChange}
+      />
+
+      <div
+        style={{
+          marginTop: 16,
+          display: "flex",
+          flexDirection: "column",
+          gap: 8,
+        }}
+      >
+        <div>
+          <strong>Status:</strong>{" "}
+          {status}
+        </div>
+
+        <div>
+          <strong>File:</strong>{" "}
+          {fileName || "None Selected"}
+        </div>
+
+        <div>
+          <strong>Records:</strong>{" "}
+          {recordCount}
+        </div>
+      </div>
+    </div>
   );
 }
