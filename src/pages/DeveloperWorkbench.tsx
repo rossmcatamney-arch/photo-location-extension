@@ -3,6 +3,10 @@ import {
   useState,
 } from "react";
 
+import {
+  PanoramaProjectLab,
+} from "../components/PanoramaProjectLab";
+
 import { workspaceService }
   from "../services/WorkspaceService";
 
@@ -44,10 +48,6 @@ import { FileDiscoveryLab }
 import {
   PhotoLocationHome,
 } from "../components/PhotoLocationHome";
-
-import {
-  ProjectFilesLab,
-} from "../components/ProjectFilesLab";
 
 import {
   ExtensionMethodsLab,
@@ -102,6 +102,40 @@ export function DeveloperWorkbench() {
         const project =
           await api.project
             .getCurrentProject();
+
+        console.log(
+          "===================================="
+        );
+        console.log(
+          "FULL PROJECT OBJECT"
+        );
+        console.log(
+          "===================================="
+        );
+        console.log(project);
+
+        try {
+          console.log(
+            JSON.stringify(
+              project,
+              null,
+              2
+            )
+          );
+        }
+        catch (error) {
+          console.log(
+            "Project could not be JSON stringified",
+            error
+          );
+        }
+
+        console.log(
+          "PROJECT KEYS:",
+          Object.keys(
+            project || {}
+          )
+        );
 
         setProjectName(
           project?.name ??
@@ -201,19 +235,19 @@ export function DeveloperWorkbench() {
             }
           />
         </div>
-
-        <div
-          style={{
-            gridColumn:
-              "span 2",
-          }}
-        >
-          <ProjectFilesLab
-            projectId={
-              projectId
-            }
-          />
-        </div>
+        
+<div
+  style={{
+    gridColumn:
+      "span 2",
+  }}
+>
+  <PanoramaProjectLab
+    projectId={
+      projectId
+    }
+  />
+</div>
 
         <div
           style={{
@@ -393,4 +427,4 @@ export function DeveloperWorkbench() {
       </div>
     </div>
   );
-}         
+}

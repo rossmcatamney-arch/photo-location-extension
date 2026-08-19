@@ -1,5 +1,9 @@
 import * as TC from "trimble-connect-sdk";
 
+import {
+  coreApiService,
+} from "./CoreApiService";
+
 import type {
   ProjectFile,
 } from "../models/ProjectFile";
@@ -10,9 +14,9 @@ import {
 
 export class TrimbleProjectFilesService {
 
-  private async getFilesystem(
+  private async getProject(
     projectId: string
-  ): Promise<any[]> {
+  ): Promise<any> {
 
     const api =
       workspaceService.getApi();
@@ -72,6 +76,18 @@ export class TrimbleProjectFilesService {
       );
     }
 
+    return project;
+  }
+
+  private async getFilesystem(
+    projectId: string
+  ): Promise<any[]> {
+
+    const project =
+      await this.getProject(
+        projectId
+      );
+
     const filesystem =
       await (
         TC.TCPSClient as any
@@ -84,7 +100,7 @@ export class TrimbleProjectFilesService {
     );
   }
 
-  private mapFile(
+    private mapFile(
     item: any,
     type:
       | "folder"
@@ -100,13 +116,34 @@ export class TrimbleProjectFilesService {
         item.name,
 
       name:
-        item.name ?? "",
+        item.name ??
+        item.displayName ??
+        "",
 
       path:
-        item.path ?? "",
+        item.path ??
+        "",
 
       type,
     };
+  }
+
+  public async getProjectRoot(
+    projectId: string
+  ) {
+
+    return coreApiService.getProject(
+      projectId
+    );
+  }
+
+  public async getFolderItems(
+    folderId: string
+  ) {
+
+    return coreApiService.getFolderItems(
+      folderId
+    );
   }
 
   public async discoverFiles(
@@ -134,30 +171,75 @@ export class TrimbleProjectFilesService {
     );
   }
 
-  public async discoverFolders(
-    projectId: string
-  ): Promise<ProjectFile[]> {
+public async discoverFolders(
+  projectId: string
+): Promise<ProjectFile[]> {
 
-    const filesystem =
-      await this.getFilesystem(
-        projectId
-      );
-
-    const folders =
-      filesystem.filter(
-        (item: any) =>
-          item.directory === true &&
-          item.flag !== "DELETED"
-      );
-
-    return folders.map(
-      item =>
-        this.mapFile(
-          item,
-          "folder"
-        )
+  const project =
+    await coreApiService.getProject(
+      projectId
     );
+
+  const folders: ProjectFile[] = [];
+
+  async function traverseFolder(
+    folderId: string,
+    currentPath: string
+  ) {
+
+    const result =
+      await coreApiService.getFolderItems(
+        folderId
+      );
+
+    const items =
+      result.items ?? [];
+
+    for (const item of items) {
+
+      const path =
+        currentPath
+          ? `${currentPath}/${item.name}`
+          : item.name;
+
+      if (
+        item.type ===
+        "FOLDER"
+      ) {
+
+        folders.push({
+          id:
+            item.id,
+
+          name:
+            item.name,
+
+          path,
+
+          type:
+            "folder",
+        });
+
+        if (
+          item.hasChildren
+        ) {
+
+          await traverseFolder(
+            item.id,
+            path
+          );
+        }
+      }
+    }
   }
+
+  await traverseFolder(
+    project.rootId,
+    ""
+  );
+
+  return folders;
+}
 
   public async discoverCsvFiles(
     projectId: string
@@ -178,7 +260,7 @@ export class TrimbleProjectFilesService {
       .map(
         file => ({
           ...file,
-          type: "csv",
+          type: "csv" as const,
         })
       );
   }
@@ -211,7 +293,7 @@ export class TrimbleProjectFilesService {
       .map(
         file => ({
           ...file,
-          type: "image",
+          type: "image" as const,
         })
       );
   }
@@ -273,6 +355,54 @@ export class TrimbleProjectFilesService {
     );
   }
 
+  public async loadCsvContentById(
+    projectId: string,
+    fileId: string
+  ): Promise<string> {
+
+    const project =
+      await this.getProject(
+        projectId
+      );
+
+    const fileDetails =
+      await (
+        TC.TCPSClient as any
+      ).getFile(
+        project,
+        fileId
+      );
+
+    const downloadUrlResult =
+      await (
+        TC.TCPSClient as any
+      ).getFileDownloadUrl(
+        fileDetails.data
+      );
+
+    const downloadUrl =
+      downloadUrlResult?.data?.url;
+
+    if (!downloadUrl) {
+      throw new Error(
+        "CSV download URL not found"
+      );
+    }
+
+    const response =
+      await fetch(
+        downloadUrl
+      );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to download CSV (${response.status})`
+      );
+    }
+
+    return await response.text();
+  }
+
   public async runDiscovery(
     projectId: string
   ): Promise<void> {
@@ -288,7 +418,7 @@ export class TrimbleProjectFilesService {
       );
 
     console.log(
-      "=== PHOTO LOCATION DISCOVERY V25 ==="
+      "=== PHOTO LOCATION DISCOVERY V26 ==="
     );
 
     console.log(
@@ -299,14 +429,6 @@ export class TrimbleProjectFilesService {
     console.log(
       "CSV files:",
       csvFiles.length
-    );
-
-    console.log(
-      imageFolders
-    );
-
-    console.log(
-      csvFiles
     );
   }
 }

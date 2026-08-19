@@ -1,8 +1,14 @@
+import type {
+  ProjectFile,
+} from "../models/ProjectFile";
+
 export interface FileBrowserDialogProps {
   isOpen: boolean;
-  files: string[];
+  files: ProjectFile[];
   onClose: () => void;
-  onSelect: (file: string) => void;
+  onSelect: (
+    file: ProjectFile
+  ) => void;
 }
 
 export function FileBrowserDialog({
@@ -11,6 +17,7 @@ export function FileBrowserDialog({
   onClose,
   onSelect,
 }: FileBrowserDialogProps) {
+
   if (!isOpen) {
     return null;
   }
@@ -21,12 +28,15 @@ export function FileBrowserDialog({
       style={{
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(0,0,0,0.5)",
+        backgroundColor:
+          "rgba(0,0,0,0.5)",
         zIndex: 1000,
       }}
     >
       <div
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) =>
+          e.stopPropagation()
+        }
         style={{
           background: "#ffffff",
           width: "800px",
@@ -35,10 +45,13 @@ export function FileBrowserDialog({
           margin: "40px auto",
           padding: "20px",
           borderRadius: "8px",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.25)",
+          boxShadow:
+            "0 4px 16px rgba(0,0,0,0.25)",
         }}
       >
-        <h3>Select Pose CSV</h3>
+        <h3>
+          Select Pose CSV
+        </h3>
 
         <div
           style={{
@@ -46,12 +59,13 @@ export function FileBrowserDialog({
             color: "#666",
           }}
         >
-          Select the CSV file containing panorama poses.
+          Select the CSV file
+          containing panorama poses.
         </div>
 
         {files.map((file) => (
           <div
-            key={file}
+            key={file.id}
             onClick={() => {
               onSelect(file);
               onClose();
@@ -59,10 +73,11 @@ export function FileBrowserDialog({
             style={{
               padding: "10px",
               cursor: "pointer",
-              borderBottom: "1px solid #ddd",
+              borderBottom:
+                "1px solid #ddd",
             }}
           >
-            📄 {file}
+            📄 {file.name}
           </div>
         ))}
 
@@ -70,10 +85,13 @@ export function FileBrowserDialog({
           style={{
             marginTop: 20,
             display: "flex",
-            justifyContent: "flex-end",
+            justifyContent:
+              "flex-end",
           }}
         >
-          <button onClick={onClose}>
+          <button
+            onClick={onClose}
+          >
             Cancel
           </button>
         </div>

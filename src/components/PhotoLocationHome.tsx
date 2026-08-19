@@ -7,6 +7,14 @@ import type {
   PhotoLocationConfiguration,
 } from "../models/PhotoLocationConfiguration";
 
+import type {
+  PhotoMatchingResult,
+} from "../models/PhotoMatchingResult";
+
+import type {
+  ProjectFile,
+} from "../models/ProjectFile";
+
 import {
   photoLocationConfigurationService,
 } from "../services/PhotoLocationConfigurationService";
@@ -14,6 +22,14 @@ import {
 import {
   trimbleProjectFilesService,
 } from "../services/TrimbleProjectFilesService";
+
+import {
+  CsvService,
+} from "../services/CsvService";
+
+import {
+  photoMatchingService,
+} from "../services/PhotoMatchingService";
 
 import {
   FolderBrowserDialog,
@@ -24,8 +40,7 @@ import {
 } from "./FileBrowserDialog";
 
 const APP_VERSION =
-2
-"DEV-V28.1";
+  "DEV-V30.0";
 
 export interface PhotoLocationHomeProps {
   projectName: string;
@@ -42,8 +57,12 @@ export function PhotoLocationHome({
     setConfiguration,
   ] = useState<PhotoLocationConfiguration>({
     projectId,
-    photosFolder: "",
-    poseCsv: "",
+
+    photosFolderId: "",
+    photosFolderPath: "",
+
+    poseCsvFileId: "",
+    poseCsvName: "",
   });
 
   const [
@@ -57,14 +76,22 @@ export function PhotoLocationHome({
   ] = useState("");
 
   const [
+    matchingResult,
+    setMatchingResult,
+  ] =
+    useState<PhotoMatchingResult | null>(
+      null
+    );
+
+  const [
     discoveredFolders,
     setDiscoveredFolders,
-  ] = useState<string[]>([]);
+  ] = useState<ProjectFile[]>([]);
 
   const [
     discoveredCsvs,
     setDiscoveredCsvs,
-  ] = useState<string[]>([]);
+  ] = useState<ProjectFile[]>([]);
 
   const [
     showFolderBrowser,
@@ -88,7 +115,9 @@ export function PhotoLocationHome({
       );
 
     if (existing) {
-      setConfiguration(existing);
+      setConfiguration(
+        existing
+      );
     }
 
   }, [projectId]);
@@ -108,7 +137,7 @@ export function PhotoLocationHome({
 
           const folders =
             await trimbleProjectFilesService
-              .discoverImageFolders(
+              .discoverFolders(
                 projectId
               );
 
@@ -117,18 +146,19 @@ export function PhotoLocationHome({
           );
 
           setDiscoveryStatus(
-            `Found ${folders.length} photo folders`
+            `Found ${folders.length} folders`
           );
         }
 
         setShowFolderBrowser(
           true
         );
-
       }
       catch (error) {
 
-        console.error(error);
+        console.error(
+          error
+        );
 
         setDiscoveryStatus(
           "Failed to discover photo folders"
@@ -156,9 +186,7 @@ export function PhotoLocationHome({
               );
 
           setDiscoveredCsvs(
-            csvFiles.map(
-              file => file.path
-            )
+            csvFiles
           );
 
           setDiscoveryStatus(
@@ -169,11 +197,12 @@ export function PhotoLocationHome({
         setShowFileBrowser(
           true
         );
-
       }
       catch (error) {
 
-        console.error(error);
+        console.error(
+          error
+        );
 
         setDiscoveryStatus(
           "Failed to discover CSV files"
@@ -198,6 +227,64 @@ export function PhotoLocationHome({
       );
     };
 
+  const validateMatching =
+    async () => {
+
+      try {
+
+        setDiscoveryStatus(
+          "Loading CSV..."
+        );
+
+const csvContent =
+  await trimbleProjectFilesService
+    .loadCsvContentById(
+      projectId,
+      configuration.poseCsvFileId
+    );
+
+        const poses =
+          CsvService.parse(
+            csvContent
+          );
+
+        setDiscoveryStatus(
+          "Loading images..."
+        );
+
+        const imageFiles =
+          await trimbleProjectFilesService
+            .discoverImagesInFolder(
+              projectId,
+              configuration.photosFolderPath
+            );
+
+        const result =
+          photoMatchingService.matchPhotos(
+            poses,
+            imageFiles
+          );
+
+        setMatchingResult(
+          result
+        );
+
+        setDiscoveryStatus(
+          "Matching complete"
+        );
+      }
+      catch (error) {
+
+        console.error(
+          error
+        );
+
+        setDiscoveryStatus(
+          "Validation failed"
+        );
+      }
+    };
+
   return (
     <>
       <div
@@ -210,7 +297,7 @@ export function PhotoLocationHome({
       >
 
         <h2>
-  Photo Location
+          Photo Location
         </h2>
 
         <div
@@ -266,7 +353,7 @@ export function PhotoLocationHome({
               background: "#f5f5f5",
             }}
           >
-            {configuration.photosFolder ||
+            {configuration.photosFolderPath ||
               "No folder selected"}
           </div>
 
@@ -303,7 +390,7 @@ export function PhotoLocationHome({
               background: "#f5f5f5",
             }}
           >
-            {configuration.poseCsv ||
+            {configuration.poseCsvName ||
               "No CSV selected"}
           </div>
 
@@ -322,13 +409,33 @@ export function PhotoLocationHome({
           </div>
         </div>
 
-        <button
-          onClick={
-            saveConfiguration
-          }
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+            marginTop: 15,
+          }}
         >
-          Save Configuration
-        </button>
+          <button
+            onClick={
+              saveConfiguration
+            }
+          >
+            Save Configuration
+          </button>
+
+          <button
+            onClick={
+              validateMatching
+            }
+            disabled={
+              !configuration.photosFolderId ||
+              !configuration.poseCsvFileId
+            }
+          >
+            Validate Matching
+          </button>
+        </div>
 
         {saveStatus && (
           <div
@@ -341,26 +448,37 @@ export function PhotoLocationHome({
           </div>
         )}
 
-        <div
-          style={{
-            marginTop: 20,
-            borderTop:
-              "1px solid #444",
-            paddingTop: 20,
-          }}
-        >
-          <strong>
-            Current Configuration
-          </strong>
+        {matchingResult && (
+          <div
+            style={{
+              marginTop: 20,
+              padding: 20,
+              border: "1px solid #ccc",
+              borderRadius: 8,
+              background: "#f9f9f9",
+            }}
+          >
+            <h3>
+              Matching Results
+            </h3>
 
-          <pre>
-            {JSON.stringify(
-              configuration,
-              null,
-              2
-            )}
-          </pre>
-        </div>
+            <div>
+              Total Poses:{" "}
+              {matchingResult.totalPoses}
+            </div>
+
+            <div>
+              Available Images:{" "}
+              {matchingResult.availableImages}
+            </div>
+
+            <div>
+              Missing Images:{" "}
+              {matchingResult.missingImages}
+            </div>
+          </div>
+        )}
+
       </div>
 
       <FolderBrowserDialog
@@ -371,12 +489,19 @@ export function PhotoLocationHome({
           discoveredFolders
         }
         onClose={() =>
-          setShowFolderBrowser(false)
+          setShowFolderBrowser(
+            false
+          )
         }
         onSelect={(folder) =>
           setConfiguration({
             ...configuration,
-            photosFolder: folder,
+
+            photosFolderId:
+              folder.id,
+
+            photosFolderPath:
+              folder.path,
           })
         }
       />
@@ -389,12 +514,19 @@ export function PhotoLocationHome({
           discoveredCsvs
         }
         onClose={() =>
-          setShowFileBrowser(false)
+          setShowFileBrowser(
+            false
+          )
         }
         onSelect={(file) =>
           setConfiguration({
             ...configuration,
-            poseCsv: file,
+
+            poseCsvFileId:
+              file.id,
+
+            poseCsvName:
+              file.name,
           })
         }
       />

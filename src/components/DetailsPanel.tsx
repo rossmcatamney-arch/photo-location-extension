@@ -10,31 +10,75 @@ export function DetailsPanel({
   if (!pose) {
     return (
       <div>
-        No photo selected
+        <h3>Photo Details</h3>
+
+        <div>
+          No photo selected
+        </div>
       </div>
     );
   }
 
   return (
     <div>
-      <h3>{pose.imageName}</h3>
+      <h3>
+        Photo Details
+      </h3>
 
-      <p>
-        <strong>X:</strong> {pose.x}
-      </p>
+      <div
+        style={{
+          padding: 12,
+          border: "1px solid #ddd",
+          borderRadius: 8,
+          background: "#f8f8f8",
+          marginBottom: 16,
+          wordBreak: "break-all",
+        }}
+      >
+        <strong>Image:</strong>
+        <div>
+          {pose.imageName}
+        </div>
+      </div>
 
-      <p>
-        <strong>Y:</strong> {pose.y}
-      </p>
+      <div>
+        <strong>X:</strong>{" "}
+        {pose.x.toFixed(3)}
+      </div>
 
-      <p>
-        <strong>Z:</strong> {pose.z}
-      </p>
+      <div>
+        <strong>Y:</strong>{" "}
+        {pose.y.toFixed(3)}
+      </div>
 
-      <p>
+      <div>
+        <strong>Z:</strong>{" "}
+        {pose.z.toFixed(3)}
+      </div>
+
+      <div
+        style={{
+          marginTop: 12,
+        }}
+      >
         <strong>Timestamp:</strong>{" "}
         {pose.timestamp}
-      </p>
+      </div>
+
+      <div
+        style={{
+          marginTop: 20,
+          padding: 20,
+          border: "1px dashed #999",
+          borderRadius: 8,
+          textAlign: "center",
+          color: "#666",
+        }}
+      >
+        Panorama Preview
+        <br />
+        (Coming Next)
+      </div>
     </div>
   );
 }

@@ -2,25 +2,41 @@ import type {
   FileTreeNode,
 } from "../models/FileTreeNode";
 
+import type {
+  ProjectFile,
+} from "../models/ProjectFile";
+
 export function buildFileTree(
-  paths: string[]
+  folders: ProjectFile[]
 ): FileTreeNode[] {
+
   const root: FileTreeNode = {
     name: "ROOT",
     path: "",
     children: [],
   };
 
-  for (const fullPath of paths) {
-    const parts = fullPath
-      .split("/")
-      .filter(Boolean);
+  for (const folder of folders) {
+
+    const parts =
+      folder.path
+        .split("/")
+        .filter(Boolean);
 
     let current = root;
     let currentPath = "";
 
-    for (const part of parts) {
-      currentPath += "/" + part;
+    for (
+      let i = 0;
+      i < parts.length;
+      i++
+    ) {
+
+      const part =
+        parts[i];
+
+      currentPath +=
+        "/" + part;
 
       let existing =
         current.children.find(
@@ -29,6 +45,7 @@ export function buildFileTree(
         );
 
       if (!existing) {
+
         existing = {
           name: part,
           path: currentPath,
@@ -38,6 +55,13 @@ export function buildFileTree(
         current.children.push(
           existing
         );
+      }
+
+      if (
+        i === parts.length - 1
+      ) {
+        existing.folder =
+          folder;
       }
 
       current = existing;

@@ -7,22 +7,28 @@ import type {
   FileTreeNode,
 } from "../models/FileTreeNode";
 
+import type {
+  ProjectFile,
+} from "../models/ProjectFile";
+
 import {
   buildFileTree,
 } from "../utils/buildFileTree";
 
 export interface FolderBrowserDialogProps {
   isOpen: boolean;
-  folders: string[];
+  folders: ProjectFile[];
   onClose: () => void;
-  onSelect: (folder: string) => void;
+  onSelect: (
+    folder: ProjectFile
+  ) => void;
 }
 
 interface TreeNodeProps {
   node: FileTreeNode;
   level: number;
   onSelect: (
-    folder: string
+    folder: ProjectFile
   ) => void;
 }
 
@@ -84,11 +90,16 @@ function TreeNode({
             cursor: "pointer",
             flex: 1,
           }}
-          onClick={() =>
-            onSelect(
-              node.path
-            )
-          }
+          onClick={() => {
+
+            if (
+              node.folder
+            ) {
+              onSelect(
+                node.folder
+              );
+            }
+          }}
         >
           📁 {node.name}
         </div>
@@ -124,7 +135,7 @@ export function FolderBrowserDialog({
   onSelect,
 }: FolderBrowserDialogProps) {
 
-  const tree: FileTreeNode[] =
+  const tree =
     useMemo(
       () =>
         buildFileTree(
@@ -201,9 +212,7 @@ export function FolderBrowserDialog({
           }}
         >
           {tree.map(
-            (
-              node: FileTreeNode
-            ) => (
+            (node) => (
               <TreeNode
                 key={
                   node.path

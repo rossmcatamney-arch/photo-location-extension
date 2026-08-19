@@ -10,4 +10,8 @@ export interface ProjectFile {
     | "csv"
     | "image"
     | "file";
+
+  downloadUrl?: string;
+
+  thumbnailUrl?: string;
 }

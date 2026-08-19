@@ -44,13 +44,17 @@ export function ImportPanel({
           );
 
       setRecordCount(
-        Math.max(0, rows.length - 1)
+        Math.max(
+          0,
+          rows.length - 1
+        )
       );
 
       onLoaded(text);
 
       setStatus("Loaded");
-    } catch (error) {
+    }
+    catch (error) {
       console.error(error);
 
       setStatus("Failed");
@@ -58,6 +62,13 @@ export function ImportPanel({
       setRecordCount(0);
     }
   };
+
+  const clearImport =
+    () => {
+      setFileName("");
+      setRecordCount(0);
+      setStatus("Ready");
+    };
 
   return (
     <div
@@ -76,11 +87,30 @@ export function ImportPanel({
         Import CSV
       </h3>
 
-      <input
-        type="file"
-        accept=".csv,.txt"
-        onChange={handleFileChange}
-      />
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}
+      >
+        <input
+          type="file"
+          accept=".csv,.txt"
+          onChange={
+            handleFileChange
+          }
+        />
+
+        <button
+          onClick={
+            clearImport
+          }
+        >
+          Clear
+        </button>
+      </div>
 
       <div
         style={{
@@ -97,7 +127,8 @@ export function ImportPanel({
 
         <div>
           <strong>File:</strong>{" "}
-          {fileName || "None Selected"}
+          {fileName ||
+            "None Selected"}
         </div>
 
         <div>

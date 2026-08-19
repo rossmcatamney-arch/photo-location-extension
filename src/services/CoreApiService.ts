@@ -3,6 +3,9 @@ import {
 } from "./WorkspaceService";
 
 export class CoreApiService {
+  private readonly baseUrl =
+    "https://app32.connect.trimble.com";
+
   private async getAccessToken() {
     const api =
       workspaceService.getApi();
@@ -18,23 +21,23 @@ export class CoreApiService {
     const token =
       await this.getAccessToken();
 
-    console.log(
-      "TOKEN LENGTH:",
-      token?.length
-    );
+    const url =
+      `${this.baseUrl}${path}`;
 
     console.log(
-      "REQUEST:",
-      path
+      "REQUEST URL:",
+      url
     );
 
     const response =
       await fetch(
-        `https://app31.connect.trimble.com/tc/api/2.0${path}`,
+        url,
         {
           headers: {
             Authorization:
               `Bearer ${token}`,
+            Accept:
+              "application/json",
           },
         }
       );
@@ -44,46 +47,188 @@ export class CoreApiService {
       response.status
     );
 
+    const text =
+      await response.text();
+
+    console.log(
+      "RAW RESPONSE:"
+    );
+
+    console.log(text);
+
     if (!response.ok) {
       throw new Error(
-        `API request failed: ${response.status}`
+        `API request failed (${response.status})`
       );
     }
 
-    const json =
-      await response.json();
-
-    console.log(
-      "RESPONSE:"
-    );
-
-    console.log(json);
-
-    return json;
+    try {
+      return JSON.parse(text);
+    }
+    catch {
+      return text;
+    }
   }
 
   public async getProject(
     projectId: string
   ) {
     return this.request(
-      `/projects/${projectId}`
+      `/tc/api/2.0/projects/${projectId}`
     );
   }
 
-  public async getFolders(
-    projectId: string
+  public async getFolder(
+    folderId: string
   ) {
     return this.request(
-      `/projects/${projectId}/folders`
+      `/tc/api/2.0/folders/${folderId}`
     );
   }
 
-  public async getFiles(
-    projectId: string
+  public async getFolderItems(
+    folderId: string
   ) {
     return this.request(
-      `/projects/${projectId}/files`
+      `/tc/api/2.1/folders/${folderId}/items?pageSize=100&objectTypes=FILE,FOLDER`
     );
+  }
+
+  public async getFile(
+    fileId: string
+  ) {
+    return this.request(
+      `/tc/api/2.0/files/${fileId}`
+    );
+  }
+
+  public async getFileVersion(
+    fileId: string,
+    versionId: string
+  ) {
+    return this.request(
+      `/tc/api/2.0/files/${fileId}/versions/${versionId}`
+    );
+  }
+
+  public async getFileActions(
+    fileId: string
+  ) {
+    return this.request(
+      `/tc/api/2.0/files/${fileId}?fields=_actions`
+    );
+  }
+
+  public async getFileWithoutTokenThumb(
+    fileId: string
+  ) {
+    return this.request(
+      `/tc/api/2.0/files/${fileId}?tokenThumburl=false`
+    );
+  }
+
+  public async getDownloadUrl(
+    fileId: string
+  ) {
+    return this.request(
+      `/tc/api/2.0/files/fs/${fileId}/downloadurl`
+    );
+  }
+
+public async getFolderItemsPaged(
+  folderId: string,
+  pageSize = 1000
+) {
+  return this.request(
+    `/tc/api/2.1/folders/${folderId}/items?pageSize=${pageSize}&objectTypes=FILE,FOLDER`
+  );
+}
+
+public async getImageUrl(
+  fileId: string
+) {
+  const result =
+    await this.getDownloadUrl(
+      fileId
+    );
+
+  return result.url;
+}
+
+  public async downloadFileText(
+    downloadUrl: string
+  ) {
+    console.log(
+      "DOWNLOAD URL:",
+      downloadUrl
+    );
+
+    const response =
+      await fetch(
+        downloadUrl
+      );
+
+    const text =
+      await response.text();
+
+    return {
+      status:
+        response.status,
+
+      contentType:
+        response.headers.get(
+          "content-type"
+        ),
+
+      text,
+    };
+  }
+
+  public async getDataUrlResponse(
+    dataUrl: string
+  ) {
+    const token =
+      await this.getAccessToken();
+
+    console.log(
+      "DATA URL REQUEST:",
+      dataUrl
+    );
+
+    const response =
+      await fetch(
+        dataUrl,
+        {
+          headers: {
+            Authorization:
+              `Bearer ${token}`,
+          },
+        }
+      );
+
+    const contentType =
+      response.headers.get(
+        "content-type"
+      );
+
+    const contentLength =
+      response.headers.get(
+        "content-length"
+      );
+
+    const text =
+      await response.text();
+
+    return {
+      status:
+        response.status,
+
+      contentType,
+
+      contentLength,
+
+      text,
+    };
   }
 }
 

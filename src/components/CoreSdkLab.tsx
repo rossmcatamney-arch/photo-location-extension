@@ -10,17 +10,16 @@ export function CoreSdkLab() {
   const [output, setOutput] =
     useState("");
 
-  const discoverImageFolders =
+  const testDownloadApi =
     async () => {
       try {
         const api =
           workspaceService.getApi();
 
         const token =
-          await api.extension
-            .requestPermission(
-              "accesstoken"
-            );
+          await api.extension.requestPermission(
+            "accesstoken"
+          );
 
         const credentials =
           new (
@@ -36,8 +35,7 @@ export function CoreSdkLab() {
           credentials;
 
         const currentProject =
-          await api.project
-            .getCurrentProject();
+          await api.project.getCurrentProject();
 
         const servers =
           await (
@@ -50,6 +48,12 @@ export function CoreSdkLab() {
               server.obj?.location ===
               "australia"
           );
+
+        if (!australiaServer) {
+          throw new Error(
+            "Australia server not found"
+          );
+        }
 
         const projects =
           await (
@@ -78,129 +82,60 @@ export function CoreSdkLab() {
             matchingProject
           );
 
-        const activeFiles =
-          filesystem.data.filter(
-            (item: any) =>
-              item.directory ===
-                false &&
-              item.flag !==
-                "DELETED"
-          );
-
-        const imageFiles =
-          activeFiles.filter(
-            (file: any) => {
-              const name =
-                file.name?.toLowerCase();
-
-              return (
-                name?.endsWith(
-                  ".jpg"
-                ) ||
-                name?.endsWith(
-                  ".jpeg"
-                ) ||
-                name?.endsWith(
-                  ".png"
-                ) ||
-                name?.endsWith(
-                  ".tif"
-                ) ||
-                name?.endsWith(
-                  ".tiff"
-                )
-              );
-            }
-          );
-
         const csvFiles =
-          activeFiles.filter(
+          filesystem.data.filter(
             (file: any) =>
+              file.directory === false &&
+              file.flag !== "DELETED" &&
               file.name
                 ?.toLowerCase()
-                .endsWith(
-                  ".csv"
-                )
+                .endsWith(".csv")
           );
 
-        const folderMap =
-          new Map<
-            string,
-            number
-          >();
-
-        for (const image of imageFiles) {
-          const folder =
-            image.path ?? "";
-
-          folderMap.set(
-            folder,
-            (
-              folderMap.get(
-                folder
-              ) ?? 0
-            ) + 1
+        if (csvFiles.length === 0) {
+          throw new Error(
+            "No CSV files found"
           );
         }
 
-        const imageFolders =
-          [...folderMap.entries()]
-            .map(
-              ([
-                path,
-                imageCount,
-              ]) => ({
-                path,
-                imageCount,
-              })
-            )
-            .sort(
-              (
-                a,
-                b
-              ) =>
-                b.imageCount -
-                a.imageCount
-            );
+        const firstCsv =
+          csvFiles[0];
 
-        const report = {
+        const report: any = {
           buildMarker:
-            "CORE SDK LAB V24",
+            "CSV DOWNLOAD LAB V4",
 
-          currentProject: {
-            id:
-              currentProject.id,
-            name:
-              currentProject.name,
-          },
+          fileName:
+            firstCsv.name,
 
-          imageFolderCount:
-            imageFolders.length,
-
-          csvCount:
-            csvFiles.length,
-
-          topImageFolders:
-            imageFolders.slice(
-              0,
-              50
-            ),
-
-          csvFiles:
-            csvFiles.map(
-              (file: any) => ({
-                fileId:
-                  file.fileId,
-                name:
-                  file.name,
-                path:
-                  file.path,
-              })
-            ),
+          fileId:
+            firstCsv.fileId,
         };
 
+        const fileDetails =
+          await (
+            TC.TCPSClient as any
+          ).getFile(
+            matchingProject,
+            firstCsv.fileId
+          );
+
+        report.fileDetails =
+          fileDetails?.data;
+
+        const downloadUrlResult =
+          await (
+            TC.TCPSClient as any
+          ).getFileDownloadUrl(
+            fileDetails.data
+          );
+
+        report.downloadUrlResult =
+          downloadUrlResult;
+
         console.log(
-          report
+          "DOWNLOAD URL RESULT",
+          downloadUrlResult
         );
 
         setOutput(
@@ -221,9 +156,6 @@ export function CoreSdkLab() {
         setOutput(
           JSON.stringify(
             {
-              buildMarker:
-                "CORE SDK LAB V24",
-
               message:
                 error?.message,
 
@@ -240,15 +172,15 @@ export function CoreSdkLab() {
   return (
     <div>
       <h2>
-        CORE SDK LAB V24
+        CSV Download Lab V4
       </h2>
 
       <button
         onClick={
-          discoverImageFolders
+          testDownloadApi
         }
       >
-        Discover Image Folders
+        Test Download API
       </button>
 
       <pre

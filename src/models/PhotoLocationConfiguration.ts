@@ -1,7 +1,9 @@
 export interface PhotoLocationConfiguration {
   projectId: string;
 
-  photosFolder: string;
+  photosFolderId: string;
+  photosFolderPath: string;
 
-  poseCsv: string;
+  poseCsvFileId: string;
+  poseCsvName: string;
 }
