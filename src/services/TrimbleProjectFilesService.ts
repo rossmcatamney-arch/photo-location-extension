@@ -338,22 +338,66 @@ public async discoverFolders(
       );
   }
 
-  public async discoverImagesInFolder(
-    projectId: string,
-    folderPath: string
-  ): Promise<ProjectFile[]> {
+public async discoverImagesInFolder(
+  folderId: string
+): Promise<ProjectFile[]> {
 
-    const images =
-      await this.discoverImageFiles(
-        projectId
-      );
+  const allItems: any[] = [];
 
-    return images.filter(
-      image =>
-        image.path ===
-        folderPath
+  let result =
+    await coreApiService.getFolderItemsPaged(
+      folderId,
+      500
     );
+
+  while (true) {
+
+    allItems.push(
+      ...(result.items ?? [])
+    );
+
+    const nextUrl =
+      result.links?.next?.href;
+
+    if (!nextUrl) {
+      break;
+    }
+
+    result =
+      await coreApiService.requestAbsolute(
+        nextUrl
+      );
   }
+
+  return allItems
+    .filter(
+      (item: any) => {
+
+        const name =
+          item.name
+            ?.toLowerCase() ?? "";
+
+        return (
+          item.type === "FILE" &&
+          (
+            name.endsWith(".jpg") ||
+            name.endsWith(".jpeg") ||
+            name.endsWith(".png") ||
+            name.endsWith(".tif") ||
+            name.endsWith(".tiff")
+          )
+        );
+      }
+    )
+    .map(
+      (item: any) => ({
+        id: item.id,
+        name: item.name,
+        path: item.name,
+        type: "image" as const,
+      })
+    );
+}
 
   public async loadCsvContentById(
     projectId: string,

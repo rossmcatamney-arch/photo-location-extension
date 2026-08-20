@@ -38,10 +38,10 @@ function TreeNode({
   onSelect,
 }: TreeNodeProps) {
 
-  const [
-    expanded,
-    setExpanded,
-  ] = useState(level < 2);
+const [
+  expanded,
+  setExpanded,
+] = useState(false);
 
   const hasChildren =
     node.children.length > 0;

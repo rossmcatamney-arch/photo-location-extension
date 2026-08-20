@@ -3,8 +3,8 @@ import {
 } from "./WorkspaceService";
 
 export class CoreApiService {
-  private readonly baseUrl =
-    "https://app32.connect.trimble.com";
+private readonly baseUrl =
+  "https://app32.connect.trimble.com";
 
   private async getAccessToken() {
     const api =
@@ -15,60 +15,72 @@ export class CoreApiService {
     );
   }
 
-  private async request(
-    path: string
-  ) {
-    const token =
-      await this.getAccessToken();
+ private async request(
+  path: string
+) {
+  const token =
+    await this.getAccessToken();
 
-    const url =
-      `${this.baseUrl}${path}`;
+  const url =
+    `${this.baseUrl}${path}`;
 
-    console.log(
-      "REQUEST URL:",
-      url
+  const response =
+    await fetch(
+      url,
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+          Accept:
+            "application/json",
+        },
+      }
     );
 
-    const response =
-      await fetch(
-        url,
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-            Accept:
-              "application/json",
-          },
-        }
-      );
+  const text =
+    await response.text();
 
-    console.log(
-      "STATUS:",
-      response.status
+  if (!response.ok) {
+    throw new Error(
+      `API request failed (${response.status})`
     );
-
-    const text =
-      await response.text();
-
-    console.log(
-      "RAW RESPONSE:"
-    );
-
-    console.log(text);
-
-    if (!response.ok) {
-      throw new Error(
-        `API request failed (${response.status})`
-      );
-    }
-
-    try {
-      return JSON.parse(text);
-    }
-    catch {
-      return text;
-    }
   }
+
+  try {
+    return JSON.parse(text);
+  }
+  catch {
+    return text;
+  }
+}
+
+public async requestAbsolute(
+  url: string
+) {
+  const token =
+    await this.getAccessToken();
+
+  const response =
+    await fetch(
+      url,
+      {
+        headers: {
+          Authorization:
+            `Bearer ${token}`,
+          Accept:
+            "application/json",
+        },
+      }
+    );
+
+  if (!response.ok) {
+    throw new Error(
+      `API request failed (${response.status})`
+    );
+  }
+
+  return response.json();
+}
 
   public async getProject(
     projectId: string
@@ -137,11 +149,12 @@ export class CoreApiService {
 
 public async getFolderItemsPaged(
   folderId: string,
-  pageSize = 1000
+  pageSize = 500
 ) {
-  return this.request(
-    `/tc/api/2.1/folders/${folderId}/items?pageSize=${pageSize}&objectTypes=FILE,FOLDER`
-  );
+  const path =
+    `/tc/api/2.1/folders/${folderId}/items?pageSize=${pageSize}&objectTypes=FILE,FOLDER`;
+
+  return this.request(path);
 }
 
 public async getImageUrl(
@@ -158,11 +171,6 @@ public async getImageUrl(
   public async downloadFileText(
     downloadUrl: string
   ) {
-    console.log(
-      "DOWNLOAD URL:",
-      downloadUrl
-    );
-
     const response =
       await fetch(
         downloadUrl
@@ -189,11 +197,6 @@ public async getImageUrl(
   ) {
     const token =
       await this.getAccessToken();
-
-    console.log(
-      "DATA URL REQUEST:",
-      dataUrl
-    );
 
     const response =
       await fetch(

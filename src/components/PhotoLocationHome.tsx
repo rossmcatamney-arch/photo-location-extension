@@ -70,10 +70,10 @@ export function PhotoLocationHome({
     setSaveStatus,
   ] = useState("");
 
-  const [
-    discoveryStatus,
-    setDiscoveryStatus,
-  ] = useState("");
+const [
+  discoveryStatus,
+  setDiscoveryStatus,
+] = useState("");
 
   const [
     matchingResult,
@@ -252,12 +252,26 @@ const csvContent =
           "Loading images..."
         );
 
-        const imageFiles =
-          await trimbleProjectFilesService
-            .discoverImagesInFolder(
-              projectId,
-              configuration.photosFolderPath
-            );
+       const imageFiles =
+  await trimbleProjectFilesService
+    .discoverImagesInFolder(
+      configuration.photosFolderId
+    );
+
+console.log(
+  "POSE COUNT",
+  poses.length
+);
+
+console.log(
+  "IMAGE COUNT",
+  imageFiles.length
+);
+
+console.log(
+  "FIRST IMAGE",
+  imageFiles[0]
+);
 
         const result =
           photoMatchingService.matchPhotos(
@@ -301,113 +315,113 @@ const csvContent =
         </h2>
 
         <div
-          style={{
-            color: "#666",
-            fontSize: "0.9rem",
-            marginBottom: 20,
-          }}
-        >
-          Developer Build: {APP_VERSION}
-        </div>
+  style={{
+    color: "#666",
+    fontSize: "0.9rem",
+    marginBottom: 20,
+  }}
+>
+  Developer Build: {APP_VERSION}
+</div>
 
-        <div
-          style={{
-            marginBottom: 20,
-          }}
-        >
-          <strong>
-            Current Project
-          </strong>
+<div
+  style={{
+    marginBottom: 20,
+  }}
+>
+  <strong>
+    Current Project
+  </strong>
 
-          <div>
-            {projectName}
-          </div>
-        </div>
+  <div>
+    {projectName}
+  </div>
+</div>
 
-        {discoveryStatus && (
-          <div
-            style={{
-              marginBottom: 20,
-              color: "#0066cc",
-            }}
-          >
-            {discoveryStatus}
-          </div>
-        )}
+{discoveryStatus && (
+  <div
+    style={{
+      marginBottom: 20,
+      color: "#0066cc",
+    }}
+  >
+    {discoveryStatus}
+  </div>
+)}
 
-        <div
-          style={{
-            marginBottom: 20,
-          }}
-        >
-          <strong>
-            Photos Folder
-          </strong>
+<div
+  style={{
+    marginBottom: 20,
+  }}
+>
+  <strong>
+    Pose CSV
+  </strong>
 
-          <div
-            style={{
-              marginTop: 8,
-              padding: 12,
-              border: "1px solid #ccc",
-              borderRadius: 4,
-              background: "#f5f5f5",
-            }}
-          >
-            {configuration.photosFolderPath ||
-              "No folder selected"}
-          </div>
+  <div
+    style={{
+      marginTop: 8,
+      padding: 12,
+      border: "1px solid #ccc",
+      borderRadius: 4,
+      background: "#f5f5f5",
+    }}
+  >
+    {configuration.poseCsvName ||
+      "No CSV selected"}
+  </div>
 
-          <div
-            style={{
-              marginTop: 8,
-            }}
-          >
-            <button
-              onClick={
-                openFolderBrowser
-              }
-            >
-              Browse Folder
-            </button>
-          </div>
-        </div>
+  <div
+    style={{
+      marginTop: 8,
+    }}
+  >
+    <button
+      onClick={
+        openFileBrowser
+      }
+    >
+      Browse CSV
+    </button>
+  </div>
+</div>
 
-        <div
-          style={{
-            marginBottom: 20,
-          }}
-        >
-          <strong>
-            Pose CSV
-          </strong>
+<div
+  style={{
+    marginBottom: 20,
+  }}
+>
+  <strong>
+    Photos Folder
+  </strong>
 
-          <div
-            style={{
-              marginTop: 8,
-              padding: 12,
-              border: "1px solid #ccc",
-              borderRadius: 4,
-              background: "#f5f5f5",
-            }}
-          >
-            {configuration.poseCsvName ||
-              "No CSV selected"}
-          </div>
+  <div
+    style={{
+      marginTop: 8,
+      padding: 12,
+      border: "1px solid #ccc",
+      borderRadius: 4,
+      background: "#f5f5f5",
+    }}
+  >
+    {configuration.photosFolderPath ||
+      "No folder selected"}
+  </div>
 
-          <div
-            style={{
-              marginTop: 8,
-            }}
-          >
-            <button
-              onClick={
-                openFileBrowser
-              }
-            >
-              Browse CSV
-            </button>
-          </div>
-        </div>
+  <div
+    style={{
+      marginTop: 8,
+    }}
+  >
+    <button
+      onClick={
+        openFolderBrowser
+      }
+    >
+      Browse Folder
+    </button>
+  </div>
+</div>
 
         <div
           style={{
