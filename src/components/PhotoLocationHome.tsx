@@ -238,9 +238,15 @@ useEffect(() => {
             photo.imageId
           );
 
-      setSelectedPhotoUrl(
-        imageUrl
-      );
+console.log(
+  "IMAGE URL",
+  imageUrl
+);
+
+setSelectedPhotoUrl(
+  imageUrl
+);
+
 
     }
     catch (error) {
@@ -415,6 +421,14 @@ console.log(
 setPhotoNodes(
   nodes
 );
+
+if (nodes.length > 0) {
+
+  setSelectedPhoto(
+    nodes[0]
+  );
+
+}
 
         setMatchingResult(
           result
@@ -774,10 +788,10 @@ const testPermission =
             {photoNodes.length > 0 && (
   <div
     style={{
+      display: "flex",
+      gap: 20,
       marginTop: 20,
-      padding: 20,
-      border: "1px solid #ccc",
-      borderRadius: 8,
+      alignItems: "flex-start",
     }}
   >
     <h3>
@@ -844,14 +858,14 @@ const testPermission =
 )}
 
 {selectedPhoto && (
-  <div
-    style={{
-      marginTop: 20,
-      padding: 15,
-      border: "1px solid #ccc",
-      borderRadius: 8,
-    }}
-  >
+<div
+  style={{
+    width: "350px",
+    padding: 20,
+    border: "1px solid #ccc",
+    borderRadius: 8,
+  }}
+>
 
     <h3>
       Selected Photo
