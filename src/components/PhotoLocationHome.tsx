@@ -47,6 +47,10 @@ import {
   FileBrowserDialog,
 } from "./FileBrowserDialog";
 
+import {
+  PhotoMap,
+} from "./PhotoMap";
+
 const APP_VERSION =
   "DEV-V30.0";
 
@@ -77,18 +81,21 @@ const [
   setSelectedPhotoUrl,
 ] = useState("");
 
-  const [
-    configuration,
-    setConfiguration,
-  ] = useState<PhotoLocationConfiguration>({
-    projectId,
+const [
+  configuration,
+  setConfiguration,
+] = useState<PhotoLocationConfiguration>({
+  projectId,
 
-    photosFolderId: "",
-    photosFolderPath: "",
+  photosFolderId: "",
+  photosFolderPath: "",
 
-    poseCsvFileId: "",
-    poseCsvName: "",
-  });
+  poseCsvFileId: "",
+  poseCsvName: "",
+
+  coordinateSystem:
+    "LOCAL",
+});
 
   const [
     saveStatus,
@@ -144,11 +151,16 @@ const [
         projectId
       );
 
-    if (existing) {
-      setConfiguration(
-        existing
-      );
-    }
+if (existing) {
+
+  setConfiguration({
+    ...existing,
+    coordinateSystem:
+      existing.coordinateSystem ??
+      "LOCAL",
+  });
+
+}
 
   }, [projectId]);
 
@@ -610,6 +622,7 @@ const testPermission =
     marginBottom: 20,
   }}
 >
+
   <strong>
     Current Project
   </strong>
@@ -704,6 +717,67 @@ const testPermission =
   </div>
 </div>
 
+<div
+  style={{
+    marginBottom: 20,
+  }}
+>
+  <strong>
+    Coordinate System
+  </strong>
+
+  <div
+    style={{
+      marginTop: 8,
+    }}
+  >
+    <select
+      value={
+        configuration.coordinateSystem
+      }
+      onChange={event =>
+        setConfiguration({
+          ...configuration,
+          coordinateSystem:
+            event.target.value,
+        })
+      }
+    >
+      <option value="LOCAL">
+        Local Coordinates
+      </option>
+
+      <option value="MGA2020_ZONE_50">
+        MGA2020 Zone 50
+      </option>
+
+      <option value="MGA2020_ZONE_51">
+        MGA2020 Zone 51
+      </option>
+
+      <option value="MGA2020_ZONE_52">
+        MGA2020 Zone 52
+      </option>
+
+      <option value="MGA2020_ZONE_53">
+        MGA2020 Zone 53
+      </option>
+
+      <option value="MGA2020_ZONE_54">
+        MGA2020 Zone 54
+      </option>
+
+      <option value="MGA2020_ZONE_55">
+        MGA2020 Zone 55
+      </option>
+
+      <option value="MGA2020_ZONE_56">
+        MGA2020 Zone 56
+      </option>
+    </select>
+  </div>
+</div>
+
         <div
           style={{
             display: "flex",
@@ -785,7 +859,19 @@ const testPermission =
               
             }}
           >
-            {photoNodes.length > 0 && (
+            <PhotoMap
+  photoNodes={
+    photoNodes
+  }
+  selectedPhoto={
+    selectedPhoto
+  }
+  onPhotoSelected={
+    setSelectedPhoto
+  }
+/>
+{photoNodes.length > 0 && (
+
   <div
     style={{
       display: "flex",
@@ -794,169 +880,186 @@ const testPermission =
       alignItems: "flex-start",
     }}
   >
-    <h3>
-      Photo Nodes
-    </h3>
 
-<input
-  placeholder="Search photos..."
-  value={searchText}
-  onChange={event =>
-    setSearchText(
-      event.target.value
-    )
-  }
-  style={{
-    width: "100%",
-    padding: 8,
-    marginBottom: 10,
-    borderRadius: 4,
-    border: "1px solid #ccc",
-  }}
-/>
-
-<div
-  style={{
-    maxHeight: 300,
-    overflowY: "auto",
-    border: "1px solid #ccc",
-    borderRadius: 8,
-    marginTop: 10,
-  }}
->
-  {filteredPhotos.map(photo => (
     <div
-      key={photo.id}
-      onClick={() =>
-        setSelectedPhoto(photo)
-      }
       style={{
-  padding: 10,
-  cursor: "pointer",
-  borderBottom:
-    "1px solid #eee",
-  background:
-    selectedPhoto?.id ===
-    photo.id
-      ? "#e6f2ff"
-      : "white",
-}}
+        flex: 1,
+      }}
     >
-      {photo.imageName}
-    </div>
-  ))}
-</div>
 
-    <div>
-     Node Count:
-{" "}
-{filteredPhotos.length}
-{" of "}
-{photoNodes.length}
+      <h3>
+        Photo Nodes
+      </h3>
+
+      <input
+        placeholder="Search photos..."
+        value={searchText}
+        onChange={event =>
+          setSearchText(
+            event.target.value
+          )
+        }
+        style={{
+          width: "100%",
+          padding: 8,
+          marginBottom: 10,
+          borderRadius: 4,
+          border:
+            "1px solid #ccc",
+        }}
+      />
+
+      <div
+        style={{
+          maxHeight: 300,
+          overflowY: "auto",
+          border:
+            "1px solid #ccc",
+          borderRadius: 8,
+          marginTop: 10,
+        }}
+      >
+
+        {filteredPhotos.map(
+          photo => (
+
+            <div
+              key={photo.id}
+              onClick={() =>
+                setSelectedPhoto(
+                  photo
+                )
+              }
+              style={{
+                padding: 10,
+                cursor: "pointer",
+                borderBottom:
+                  "1px solid #eee",
+                background:
+                  selectedPhoto?.id ===
+                  photo.id
+                    ? "#e6f2ff"
+                    : "white",
+              }}
+            >
+              {photo.imageName}
+            </div>
+
+          )
+        )}
+
+      </div>
+
+      <div
+        style={{
+          marginTop: 10,
+        }}
+      >
+        Node Count:
+        {" "}
+        {filteredPhotos.length}
+        {" of "}
+        {photoNodes.length}
+      </div>
+
     </div>
+
+    {selectedPhoto && (
+
+      <div
+        style={{
+          width: "350px",
+          padding: 20,
+          border:
+            "1px solid #ccc",
+          borderRadius: 8,
+        }}
+      >
+
+        <h3>
+          Selected Photo
+        </h3>
+
+        {selectedPhotoUrl && (
+          <img
+            src={selectedPhotoUrl}
+            alt={
+              selectedPhoto.imageName
+            }
+            style={{
+              maxWidth:
+                "100%",
+              maxHeight:
+                400,
+              border:
+                "1px solid #ccc",
+              borderRadius:
+                8,
+              marginBottom:
+                15,
+            }}
+          />
+        )}
+
+        <div>
+          <strong>Name:</strong>
+          {" "}
+          {selectedPhoto.imageName}
+        </div>
+
+        <div>
+          <strong>X:</strong>
+          {" "}
+          {selectedPhoto.x}
+        </div>  
+        
+        <div
+          style={{
+            display: "flex",
+            gap: 10,
+            marginTop: 10,
+          }}
+        >
+
+          <button
+            disabled={
+              selectedPhotoIndex <= 0
+            }
+            onClick={() =>
+              setSelectedPhoto(
+                filteredPhotos[
+                  selectedPhotoIndex - 1
+                ]
+              )
+            }
+          >
+            Previous
+          </button>
+
+          <button
+            disabled={
+              selectedPhotoIndex >=
+              filteredPhotos.length - 1
+            }
+            onClick={() =>
+              setSelectedPhoto(
+                filteredPhotos[
+                  selectedPhotoIndex + 1
+                ]
+              )
+            }
+          >
+            Next
+          </button>
+
+        </div>
+
+      </div>
+
+    )}
+
   </div>
-)}
 
-{selectedPhoto && (
-<div
-  style={{
-    width: "350px",
-    padding: 20,
-    border: "1px solid #ccc",
-    borderRadius: 8,
-  }}
->
-
-    <h3>
-      Selected Photo
-    </h3>
-{selectedPhotoUrl && (
-  <img
-    src={selectedPhotoUrl}
-alt={
-  selectedPhoto!.imageName
-}
-    style={{
-      maxWidth: "100%",
-      maxHeight: 400,
-      border: "1px solid #ccc",
-      borderRadius: 8,
-      marginBottom: 15,
-    }}
-  />
-)}
-    <div>
-      <strong>Name:</strong>
-      {" "}
-      {selectedPhoto.imageName}
-    </div>
-
-    <div>
-      <strong>X:</strong>
-      {" "}
-      {selectedPhoto.x}
-    </div>
-
-    <div>
-      <strong>Y:</strong>
-      {" "}
-      {selectedPhoto.y}
-    </div>
-
-    <div>
-      <strong>Z:</strong>
-      {" "}
-      {selectedPhoto.z}
-    </div>
-
-<div>
-  <strong>Photo:</strong>
-  {" "}
-  {selectedPhotoIndex + 1}
-  {" of "}
-  {filteredPhotos.length}
-</div>
-
-<div
-  style={{
-    display: "flex",
-    gap: 10,
-    marginTop: 10,
-  }}
->
-  <button
-    disabled={
-      selectedPhotoIndex <= 0
-    }
-    onClick={() =>
-      setSelectedPhoto(
-        filteredPhotos[
-          selectedPhotoIndex - 1
-        ]
-      )
-    }
-  >
-    Previous
-  </button>
-
-  <button
-    disabled={
-      selectedPhotoIndex >=
-      filteredPhotos.length - 1
-    }
-    onClick={() =>
-      setSelectedPhoto(
-        filteredPhotos[
-          selectedPhotoIndex + 1
-        ]
-      )
-    }
-  >
-    Next
-  </button>
-</div>
-
-  </div>
 )}
 
             <h3>
