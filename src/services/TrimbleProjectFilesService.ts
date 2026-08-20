@@ -447,6 +447,44 @@ public async discoverImagesInFolder(
     return await response.text();
   }
 
+public async getImageUrl(
+  projectId: string,
+  fileId: string
+): Promise<string> {
+
+  const project =
+    await this.getProject(
+      projectId
+    );
+
+  const fileDetails =
+    await (
+      TC.TCPSClient as any
+    ).getFile(
+      project,
+      fileId
+    );
+
+  const downloadUrlResult =
+    await (
+      TC.TCPSClient as any
+    ).getFileDownloadUrl(
+      fileDetails.data
+    );
+
+  const downloadUrl =
+    downloadUrlResult?.data?.url;
+
+  if (!downloadUrl) {
+
+    throw new Error(
+      "Image download URL not found"
+    );
+  }
+
+  return downloadUrl;
+}
+
   public async runDiscovery(
     projectId: string
   ): Promise<void> {

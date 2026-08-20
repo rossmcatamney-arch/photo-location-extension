@@ -3,12 +3,13 @@ export interface PhotoPose {
 
   imageName: string;
 
+  imageId?: string;
+
   x: number;
   y: number;
   z: number;
 
-  qx: number;
-  qy: number;
-  qz: number;
-  qw: number;
+  yaw?: number;
+  pitch?: number;
+  roll?: number;
 }

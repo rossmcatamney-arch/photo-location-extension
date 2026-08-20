@@ -62,19 +62,22 @@ export class PhotoMatchingService {
             );
 
           return {
-            pose,
+  pose,
 
-            imageStatus:
-              image
-                ? "available"
-                : "missing",
+  image,
 
-            imageUrl:
-              image?.path,
+  imageStatus:
+    image
+      ? "available"
+      : "missing",
 
-            thumbnailUrl:
-              image?.path,
-          };
+  imageUrl:
+    image?.path,
+
+  thumbnailUrl:
+    image?.path,
+};
+
         }
       );
 

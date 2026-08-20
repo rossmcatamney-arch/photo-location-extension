@@ -12,6 +12,10 @@ class WorkspaceService {
       return this.api;
     }
 
+console.log(
+  "PHOTO LOCATION STARTING"
+);
+
     try {
       this.api =
         await WorkspaceAPI.connect(
@@ -69,29 +73,94 @@ class WorkspaceService {
         !!this.api?.ui?.setMenu
       );
 
+ console.dir(
+  this.api?.viewer
+);
+
+console.log(
+  "VIEW API",
+  this.api?.view
+);
+
+console.log(
+  "VIEW KEYS",
+  Object.keys(
+    this.api?.view ?? {}
+  )
+);
+
+console.log(
+  "MARKUP API",
+  this.api?.markup
+);
+
+console.log(
+  "MODELSPANEL API",
+  this.api?.modelsPanel
+);
+
+console.log(
+  "EMBED API",
+  this.api?.embed
+);
+
+console.log(
+  "EXTENSION API",
+  this.api?.extension
+);
+
+console.log(
+  "MARKUP KEYS",
+  Object.keys(
+    this.api?.markup ?? {}
+  )
+);
+
+console.log(
+  "MODELSPANEL KEYS",
+  Object.keys(
+    this.api?.modelsPanel ?? {}
+  )
+);
+
+console.log(
+  "EMBED KEYS",
+  Object.keys(
+    this.api?.embed ?? {}
+  )
+);
+
+console.log(
+  "EXTENSION KEYS",
+  Object.keys(
+    this.api?.extension ?? {}
+  )
+);
+
+console.log(
+  "VIEW KEYS",
+  Object.keys(
+    this.api?.view ?? {}
+  )
+);
+
       try {
-        if (this.api?.ui?.setMenu) {
-          console.log(
-            "Registering menu..."
-          );
+if (this.api?.ui?.setMenu) {
 
-          const result =
-            await this.api.ui.setMenu({
-              title:
-                "Photo Location",
+  const result =
+    await this.api.ui.setMenu({
+      title: "Photo Location",
+      icon:
+        "https://rossmcatamney-arch.github.io/photo-location-extension/icon.png",
+      command:
+        "PHOTO_LOCATION_OPEN",
+    });
 
-              icon:
-                "https://rossmcatamney-arch.github.io/photo-location-extension/icon.png",
-
-              command:
-                "PHOTO_LOCATION_OPEN",
-            });
-
-          console.log(
-            "Menu registration result",
-            result
-          );
-        }
+  console.log(
+    "Menu registration result",
+    result
+  );
+}
       }
       catch (menuError) {
         console.error(

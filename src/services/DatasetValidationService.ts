@@ -6,7 +6,7 @@ export interface ValidationResult {
 
   missingCoordinates: number;
 
-  invalidQuaternions: number;
+  invalidOrientation: number;
 }
 
 export class DatasetValidationService {
@@ -30,19 +30,24 @@ export class DatasetValidationService {
           Number.isNaN(p.z)
       ).length;
 
-    const invalidQuaternions =
-      poses.filter(
-        p =>
-          Number.isNaN(p.qx) ||
-          Number.isNaN(p.qy) ||
-          Number.isNaN(p.qz) ||
-          Number.isNaN(p.qw)
-      ).length;
+const invalidOrientation =
+  poses.filter(
+    p =>
+      Number.isNaN(
+        p.yaw ?? 0
+      ) ||
+      Number.isNaN(
+        p.pitch ?? 0
+      ) ||
+      Number.isNaN(
+        p.roll ?? 0
+      )
+  ).length;
 
     return {
       duplicateImages,
       missingCoordinates,
-      invalidQuaternions,
+      invalidOrientation,
     };
   }
 }

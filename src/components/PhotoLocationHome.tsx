@@ -12,6 +12,10 @@ import type {
 } from "../models/PhotoMatchingResult";
 
 import type {
+  PhotoNode,
+} from "../models/PhotoNode";
+
+import type {
   ProjectFile,
 } from "../models/ProjectFile";
 
@@ -30,6 +34,10 @@ import {
 import {
   photoMatchingService,
 } from "../services/PhotoMatchingService";
+
+import {
+  workspaceService,
+} from "../services/WorkspaceService";
 
 import {
   FolderBrowserDialog,
@@ -51,6 +59,23 @@ export function PhotoLocationHome({
   projectName,
   projectId,
 }: PhotoLocationHomeProps) {
+
+  const [
+    searchText,
+    setSearchText,
+  ] = useState("");
+
+  const [
+    selectedPhoto,
+    setSelectedPhoto,
+  ] = useState<PhotoNode | null>(
+    null
+  );
+
+const [
+  selectedPhotoUrl,
+  setSelectedPhotoUrl,
+] = useState("");
 
   const [
     configuration,
@@ -82,6 +107,11 @@ const [
     useState<PhotoMatchingResult | null>(
       null
     );
+
+const [
+  photoNodes,
+  setPhotoNodes,
+] = useState<PhotoNode[]>([]);
 
   const [
     discoveredFolders,
@@ -165,6 +195,69 @@ const [
         );
       }
     };
+
+const filteredPhotos =
+  photoNodes.filter(
+    photo =>
+      photo.imageName
+        .toLowerCase()
+        .includes(
+          searchText.toLowerCase()
+        )
+  );
+
+const selectedPhotoIndex =
+  selectedPhoto
+    ? filteredPhotos.findIndex(
+        photo =>
+          photo.id ===
+          selectedPhoto.id
+      )
+    : -1;
+
+useEffect(() => {
+
+  if (!selectedPhoto) {
+
+    setSelectedPhotoUrl("");
+
+    return;
+  }
+
+  const photo = selectedPhoto;
+
+  async function loadImage() {
+
+
+    try {
+
+      const imageUrl =
+        await trimbleProjectFilesService
+          .getImageUrl(
+            projectId,
+            photo.imageId
+          );
+
+      setSelectedPhotoUrl(
+        imageUrl
+      );
+
+    }
+    catch (error) {
+
+      console.error(
+        "Failed to load image",
+        error
+      );
+    }
+  }
+
+  loadImage();
+
+}, [
+  selectedPhoto,
+  projectId,
+]);
 
   const openFileBrowser =
     async () => {
@@ -279,6 +372,50 @@ console.log(
             imageFiles
           );
 
+const nodes =
+  result.records
+    .filter(
+      record =>
+        record.image &&
+        record.imageStatus ===
+          "available"
+    )
+    .map(
+      record => ({
+        id:
+          record.image!.id,
+
+        imageId:
+          record.image!.id,
+
+        imageName:
+          record.image!.name,
+
+        x:
+          record.pose.x,
+
+        y:
+          record.pose.y,
+
+        z:
+          record.pose.z,
+      })
+    );
+
+console.log(
+  "PHOTO NODE COUNT",
+  nodes.length
+);
+
+console.log(
+  "FIRST PHOTO NODE",
+  nodes[0]
+);
+
+setPhotoNodes(
+  nodes
+);
+
         setMatchingResult(
           result
         );
@@ -298,6 +435,136 @@ console.log(
         );
       }
     };
+
+const testWorkspaceContext =
+  async () => {
+
+    const api =
+      workspaceService.getApi();
+
+    console.log(
+      "API KEYS",
+      Object.keys(api)
+    );
+
+    try {
+
+      const currentView =
+        await api.view.getCurrentView();
+
+      console.log(
+        "CURRENT VIEW",
+        currentView
+      );
+
+    } catch (error) {
+
+      console.error(
+        "CURRENT VIEW ERROR",
+        error
+      );
+
+    }
+
+    try {
+
+      const project =
+        await api.project.getCurrentProject();
+
+      console.log(
+        "CURRENT PROJECT",
+        project
+      );
+
+    } catch (error) {
+
+      console.error(
+        "PROJECT ERROR",
+        error
+      );
+
+    }
+  };
+
+const testGoToViewer =
+  async () => {
+
+    const api =
+      workspaceService.getApi();
+
+    try {
+
+      const result =
+        await api.extension.goTo(
+          "viewer"
+        );
+
+      console.log(
+        "GO TO RESULT",
+        result
+      );
+
+    } catch (error) {
+
+      console.error(
+        "GO TO ERROR",
+        error
+      );
+
+    }
+  };
+
+const testHost =
+  async () => {
+
+    const api =
+      workspaceService.getApi();
+
+    try {
+
+      const host =
+        await api.extension.getHost();
+
+      console.log(
+        "HOST",
+        host
+      );
+
+    } catch (error) {
+
+      console.error(
+        "HOST ERROR",
+        error
+      );
+
+    }
+  };
+
+const testPermission =
+  async () => {
+
+    const api =
+      workspaceService.getApi();
+
+    try {
+
+      const permission =
+        await api.extension.getPermission();
+
+      console.log(
+        "PERMISSION",
+        permission
+      );
+
+    } catch (error) {
+
+      console.error(
+        "PERMISSION ERROR",
+        error
+      );
+
+    }
+  };
 
   return (
     <>
@@ -451,6 +718,37 @@ console.log(
           </button>
         </div>
 
+<button
+  onClick={
+    testWorkspaceContext
+  }
+  disabled={
+    photoNodes.length === 0
+  }
+>
+  Test Workspace Context
+</button>
+
+<button
+  onClick={
+    testHost
+  }
+>
+  Test Host
+</button>
+
+<button
+  onClick={
+    testGoToViewer
+  }
+>
+  Go To Viewer
+</button>
+
+<button onClick={testPermission}>
+  Test Permission
+</button>
+
         {saveStatus && (
           <div
             style={{
@@ -470,8 +768,183 @@ console.log(
               border: "1px solid #ccc",
               borderRadius: 8,
               background: "#f9f9f9",
+              
             }}
           >
+            {photoNodes.length > 0 && (
+  <div
+    style={{
+      marginTop: 20,
+      padding: 20,
+      border: "1px solid #ccc",
+      borderRadius: 8,
+    }}
+  >
+    <h3>
+      Photo Nodes
+    </h3>
+
+<input
+  placeholder="Search photos..."
+  value={searchText}
+  onChange={event =>
+    setSearchText(
+      event.target.value
+    )
+  }
+  style={{
+    width: "100%",
+    padding: 8,
+    marginBottom: 10,
+    borderRadius: 4,
+    border: "1px solid #ccc",
+  }}
+/>
+
+<div
+  style={{
+    maxHeight: 300,
+    overflowY: "auto",
+    border: "1px solid #ccc",
+    borderRadius: 8,
+    marginTop: 10,
+  }}
+>
+  {filteredPhotos.map(photo => (
+    <div
+      key={photo.id}
+      onClick={() =>
+        setSelectedPhoto(photo)
+      }
+      style={{
+  padding: 10,
+  cursor: "pointer",
+  borderBottom:
+    "1px solid #eee",
+  background:
+    selectedPhoto?.id ===
+    photo.id
+      ? "#e6f2ff"
+      : "white",
+}}
+    >
+      {photo.imageName}
+    </div>
+  ))}
+</div>
+
+    <div>
+     Node Count:
+{" "}
+{filteredPhotos.length}
+{" of "}
+{photoNodes.length}
+    </div>
+  </div>
+)}
+
+{selectedPhoto && (
+  <div
+    style={{
+      marginTop: 20,
+      padding: 15,
+      border: "1px solid #ccc",
+      borderRadius: 8,
+    }}
+  >
+
+    <h3>
+      Selected Photo
+    </h3>
+{selectedPhotoUrl && (
+  <img
+    src={selectedPhotoUrl}
+alt={
+  selectedPhoto!.imageName
+}
+    style={{
+      maxWidth: "100%",
+      maxHeight: 400,
+      border: "1px solid #ccc",
+      borderRadius: 8,
+      marginBottom: 15,
+    }}
+  />
+)}
+    <div>
+      <strong>Name:</strong>
+      {" "}
+      {selectedPhoto.imageName}
+    </div>
+
+    <div>
+      <strong>X:</strong>
+      {" "}
+      {selectedPhoto.x}
+    </div>
+
+    <div>
+      <strong>Y:</strong>
+      {" "}
+      {selectedPhoto.y}
+    </div>
+
+    <div>
+      <strong>Z:</strong>
+      {" "}
+      {selectedPhoto.z}
+    </div>
+
+<div>
+  <strong>Photo:</strong>
+  {" "}
+  {selectedPhotoIndex + 1}
+  {" of "}
+  {filteredPhotos.length}
+</div>
+
+<div
+  style={{
+    display: "flex",
+    gap: 10,
+    marginTop: 10,
+  }}
+>
+  <button
+    disabled={
+      selectedPhotoIndex <= 0
+    }
+    onClick={() =>
+      setSelectedPhoto(
+        filteredPhotos[
+          selectedPhotoIndex - 1
+        ]
+      )
+    }
+  >
+    Previous
+  </button>
+
+  <button
+    disabled={
+      selectedPhotoIndex >=
+      filteredPhotos.length - 1
+    }
+    onClick={() =>
+      setSelectedPhoto(
+        filteredPhotos[
+          selectedPhotoIndex + 1
+        ]
+      )
+    }
+  >
+    Next
+  </button>
+</div>
+
+  </div>
+)}
+
             <h3>
               Matching Results
             </h3>
