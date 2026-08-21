@@ -4,6 +4,7 @@
   "url": "https://rossmcatamney-arch.github.io/photo-location-extension/",
   "description": "Photo location viewer for Trimble Connect projects",
   "configCommand": "do_config",
+  "enabled": true,
   "extensionType": [
     "project",
     "3dviewer"
