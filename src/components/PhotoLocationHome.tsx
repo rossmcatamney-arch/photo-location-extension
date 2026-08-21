@@ -82,6 +82,13 @@ const [
 ] = useState("");
 
 const [
+  basemap,
+  setBasemap,
+] = useState(
+  "satellite"
+);
+
+const [
   configuration,
   setConfiguration,
 ] = useState<PhotoLocationConfiguration>({
@@ -135,6 +142,7 @@ const [
     setShowFolderBrowser,
   ] = useState(false);
 
+  
   const [
     showFileBrowser,
     setShowFileBrowser,
@@ -415,8 +423,17 @@ const nodes =
         y:
           record.pose.y,
 
-        z:
-          record.pose.z,
+z:
+  record.pose.z,
+
+yaw:
+  record.pose.yaw,
+
+pitch:
+  record.pose.pitch,
+
+roll:
+  record.pose.roll,
       })
     );
 
@@ -462,6 +479,67 @@ if (nodes.length > 0) {
       }
     };
 
+const testViewerModel =
+  async () => {
+
+    const api =
+      workspaceService.getApi();
+
+    try {
+
+      const models =
+        await api.viewer.getModels();
+
+      console.log(
+        "MODELS",
+        models
+      );
+
+    }
+    catch (error) {
+
+      console.error(
+        "MODEL ERROR",
+        error
+      );
+
+    }
+
+  };
+
+const testViewerMethods =
+  async () => {
+
+    const api =
+      workspaceService.getApi();
+
+    console.log(
+      "GET CAMERA",
+      api.viewer.getCamera
+    );
+
+    console.log(
+      "SET CAMERA",
+      api.viewer.setCamera
+    );
+
+    console.log(
+      "ADD PANORAMA",
+      api.viewer.addPanorama
+    );
+
+    console.log(
+      "GET MODELS",
+      api.viewer.getModels
+    );
+
+    console.log(
+      "GET LOADED MODEL",
+      api.viewer.getLoadedModel
+    );
+
+  };
+
 const testWorkspaceContext =
   async () => {
 
@@ -472,6 +550,18 @@ const testWorkspaceContext =
       "API KEYS",
       Object.keys(api)
     );
+
+console.log(
+  "VIEW API",
+  api.view
+);
+
+console.log(
+  "VIEW KEYS",
+  api.view
+    ? Object.keys(api.view)
+    : "No View API"
+);
 
     try {
 
@@ -551,10 +641,40 @@ const testHost =
       const host =
         await api.extension.getHost();
 
-      console.log(
-        "HOST",
-        host
-      );
+console.log(
+  "HOST JSON",
+  JSON.stringify(
+    host,
+    null,
+    2
+  )
+);
+
+try {
+
+  const focused =
+    await api.extension
+      .requestFocus();
+
+  console.log(
+    "REQUEST FOCUS",
+    focused
+  );
+
+}
+catch (error) {
+
+  console.error(
+    "FOCUS ERROR",
+    error
+  );
+
+}
+
+console.log(
+  "HOST OBJECT",
+  host
+);
 
     } catch (error) {
 
@@ -590,6 +710,28 @@ const testPermission =
       );
 
     }
+  };
+
+const testViewerApi =
+  async () => {
+
+    const api =
+      workspaceService.getApi();
+
+    console.log(
+      "VIEWER API",
+      api.viewer
+    );
+
+    console.log(
+      "VIEWER KEYS",
+      api.viewer
+        ? Object.keys(
+            api.viewer
+          )
+        : "NO VIEWER API"
+    );
+
   };
 
   return (
@@ -837,6 +979,30 @@ const testPermission =
   Test Permission
 </button>
 
+<button
+  onClick={
+    testViewerApi
+  }
+>
+  Test Viewer API
+</button>
+
+<button
+  onClick={
+    testViewerMethods
+  }
+>
+  Test Viewer Methods
+</button>
+
+<button
+  onClick={
+    testViewerModel
+  }
+>
+  Test Viewer Models
+</button>
+
         {saveStatus && (
           <div
             style={{
@@ -859,17 +1025,58 @@ const testPermission =
               
             }}
           >
-            <PhotoMap
-  photoNodes={
-    photoNodes
+
+<div
+  style={{
+    marginBottom: 10,
+  }}
+>
+
+  <strong>
+    Basemap
+  </strong>
+
+  <div>
+
+    <select
+      value={basemap}
+      onChange={event =>
+        setBasemap(
+          event.target.value
+        )
+      }
+    >
+
+      <option value="none">
+        None
+      </option>
+
+      <option value="street">
+        Street
+      </option>
+
+      <option value="satellite">
+        Satellite
+      </option>
+
+    </select>
+
+  </div>
+
+</div>
+
+<PhotoMap
+  photoNodes={photoNodes}
+  selectedPhoto={selectedPhoto}
+  coordinateSystem={
+    configuration.coordinateSystem
   }
-  selectedPhoto={
-    selectedPhoto
-  }
+  basemap={basemap}
   onPhotoSelected={
     setSelectedPhoto
   }
 />
+
 {photoNodes.length > 0 && (
 
   <div
@@ -968,7 +1175,7 @@ const testPermission =
 
       <div
         style={{
-          width: "350px",
+          width: "550px",
           padding: 20,
           border:
             "1px solid #ccc",
@@ -976,43 +1183,46 @@ const testPermission =
         }}
       >
 
-        <h3>
-          Selected Photo
-        </h3>
+<h3>
+  Selected Photo
+</h3>
 
-        {selectedPhotoUrl && (
-          <img
-            src={selectedPhotoUrl}
-            alt={
-              selectedPhoto.imageName
-            }
-            style={{
-              maxWidth:
-                "100%",
-              maxHeight:
-                400,
-              border:
-                "1px solid #ccc",
-              borderRadius:
-                8,
-              marginBottom:
-                15,
-            }}
-          />
-        )}
+{selectedPhotoUrl && (
+  <img
+  src={selectedPhotoUrl}
+  alt={selectedPhoto.imageName}
+  style={{
+    maxWidth: "100%",
+    maxHeight: 700,
+    marginBottom: 15,
+    cursor: "zoom-in",
+    border: "1px solid #ccc",
+    borderRadius: 8,
+  }}
+/>
+)}
 
-        <div>
-          <strong>Name:</strong>
-          {" "}
-          {selectedPhoto.imageName}
-        </div>
 
-        <div>
-          <strong>X:</strong>
-          {" "}
-          {selectedPhoto.x}
-        </div>  
-        
+<div>
+  <strong>Name:</strong>{" "}
+  {selectedPhoto.imageName}
+</div>
+
+     <div>
+  <strong>X:</strong>{" "}
+  {selectedPhoto.x}
+</div>
+
+<div>
+  <strong>Y:</strong>{" "}
+  {selectedPhoto.y}
+</div>
+
+<div>
+  <strong>Z:</strong>{" "}
+  {selectedPhoto.z}
+</div>
+
         <div
           style={{
             display: "flex",

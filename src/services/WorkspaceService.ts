@@ -12,9 +12,9 @@ class WorkspaceService {
       return this.api;
     }
 
-console.log(
-  "PHOTO LOCATION STARTING"
-);
+    console.log(
+      "PHOTO LOCATION STARTING"
+    );
 
     try {
       this.api =
@@ -44,6 +44,26 @@ console.log(
       );
 
       console.log(
+        "EXTENSION",
+        this.api.extension
+      );
+
+      try {
+        const host =
+          await this.api.extension.getHost();
+
+        console.log(
+          "HOST",
+          host
+        );
+      }
+      catch (e) {
+        console.error(
+          "HOST FAILED",
+          e
+        );
+      }
+      console.log(
         "Workspace API",
         this.api
       );
@@ -69,104 +89,124 @@ console.log(
       );
 
       console.log(
-        "setMenu available",
-        !!this.api?.ui?.setMenu
+        "ATTEMPTING MENU REGISTRATION"
       );
 
- console.dir(
-  this.api?.viewer
-);
 
-console.log(
-  "VIEW API",
-  this.api?.view
-);
+      console.dir(
+        this.api?.viewer
+      );
 
-console.log(
-  "VIEW KEYS",
-  Object.keys(
-    this.api?.view ?? {}
-  )
-);
+      console.log(
+        "VIEW API",
+        this.api?.view
+      );
 
-console.log(
-  "MARKUP API",
-  this.api?.markup
-);
+      console.log(
+        "VIEW KEYS",
+        Object.keys(
+          this.api?.view ?? {}
+        )
+      );
 
-console.log(
-  "MODELSPANEL API",
-  this.api?.modelsPanel
-);
+      console.log(
+        "MARKUP API",
+        this.api?.markup
+      );
 
-console.log(
-  "EMBED API",
-  this.api?.embed
-);
+      console.log(
+        "MODELSPANEL API",
+        this.api?.modelsPanel
+      );
 
-console.log(
-  "EXTENSION API",
-  this.api?.extension
-);
+      console.log(
+        "EMBED API",
+        this.api?.embed
+      );
 
-console.log(
-  "MARKUP KEYS",
-  Object.keys(
-    this.api?.markup ?? {}
-  )
-);
+      console.log(
+        "EXTENSION API",
+        this.api?.extension
+      );
 
-console.log(
-  "MODELSPANEL KEYS",
-  Object.keys(
-    this.api?.modelsPanel ?? {}
-  )
-);
+      console.log(
+        "MARKUP KEYS",
+        Object.keys(
+          this.api?.markup ?? {}
+        )
+      );
 
-console.log(
-  "EMBED KEYS",
-  Object.keys(
-    this.api?.embed ?? {}
-  )
-);
+      console.log(
+        "MODELSPANEL KEYS",
+        Object.keys(
+          this.api?.modelsPanel ?? {}
+        )
+      );
 
-console.log(
-  "EXTENSION KEYS",
-  Object.keys(
-    this.api?.extension ?? {}
-  )
-);
+      console.log(
+        "EMBED KEYS",
+        Object.keys(
+          this.api?.embed ?? {}
+        )
+      );
 
-console.log(
-  "VIEW KEYS",
-  Object.keys(
-    this.api?.view ?? {}
-  )
-);
+      console.log(
+        "EXTENSION KEYS",
+        Object.keys(
+          this.api?.extension ?? {}
+        )
+      );
+
+      console.log(
+        "VIEW KEYS",
+        Object.keys(
+          this.api?.view ?? {}
+        )
+      );
 
       try {
-if (this.api?.ui?.setMenu) {
 
-  const result =
-    await this.api.ui.setMenu({
-      title: "Photo Location",
-      icon:
-        "https://rossmcatamney-arch.github.io/photo-location-extension/icon.png",
-      command:
-        "PHOTO_LOCATION_OPEN",
-    });
+        console.log(
+          "ATTEMPTING MENU REGISTRATION"
+        );
 
-  console.log(
-    "Menu registration result",
-    result
-  );
-}
+        if (this.api?.ui?.setMenu) {
+
+          const result =
+            await this.api.ui.setMenu({
+              title: "Photo Location",
+              icon:
+                "https://rossmcatamney-arch.github.io/photo-location-extension/icon.png",
+              command:
+                "PHOTO_LOCATION_OPEN",
+            });
+
+          console.log(
+            "MENU RESULT",
+            result
+          );
+
+          console.log(
+            "MENU REGISTERED"
+          );
+
+        }
+        else {
+
+          console.log(
+            "SETMENU NOT AVAILABLE"
+          );
+
+        }
+
       }
       catch (menuError) {
+
         console.error(
-          "Menu registration failed",
+          "MENU REGISTRATION FAILED",
           menuError
         );
+
       }
 
       return this.api;
