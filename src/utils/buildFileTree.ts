@@ -7,66 +7,24 @@ import type {
 } from "../models/ProjectFile";
 
 export function buildFileTree(
-  folders: ProjectFile[]
+  items: ProjectFile[]
 ): FileTreeNode[] {
 
-  const root: FileTreeNode = {
-    name: "ROOT",
-    path: "",
-    children: [],
-  };
+  return items.map(
+    (item): FileTreeNode => ({
 
-  for (const folder of folders) {
+      name: item.name,
 
-    const parts =
-      folder.path
-        .split("/")
-        .filter(Boolean);
+      path: item.path,
 
-    let current = root;
-    let currentPath = "";
+      folder: item,
 
-    for (
-      let i = 0;
-      i < parts.length;
-      i++
-    ) {
+      children: [],
 
-      const part =
-        parts[i];
+      isLoaded: false,
 
-      currentPath +=
-        "/" + part;
+      isExpanded: false,
 
-      let existing =
-        current.children.find(
-          (child) =>
-            child.name === part
-        );
-
-      if (!existing) {
-
-        existing = {
-          name: part,
-          path: currentPath,
-          children: [],
-        };
-
-        current.children.push(
-          existing
-        );
-      }
-
-      if (
-        i === parts.length - 1
-      ) {
-        existing.folder =
-          folder;
-      }
-
-      current = existing;
-    }
-  }
-
-  return root.children;
+    })
+  );
 }

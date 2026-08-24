@@ -100,7 +100,7 @@ export class TrimbleProjectFilesService {
     );
   }
 
-    private mapFile(
+  private mapFile(
     item: any,
     type:
       | "folder"
@@ -146,6 +146,89 @@ export class TrimbleProjectFilesService {
     );
   }
 
+  public async getRootItems(
+    projectId: string
+  ): Promise<ProjectFile[]> {
+
+    const project =
+      await coreApiService.getProject(
+        projectId
+      );
+
+    const result =
+      await coreApiService.getFolderItems(
+        project.rootId
+      );
+
+    const items =
+      result.items ?? [];
+
+    return items.map(
+      (item: any) => ({
+
+        id: item.id,
+
+        name: item.name,
+
+        path: item.name,
+
+        type:
+          item.type === "FOLDER"
+            ? "folder"
+            : item.name
+              ?.toLowerCase()
+              .endsWith(".csv")
+              ? "csv"
+              : "file",
+
+      })
+    );
+  }
+
+  public async getFolderChildren(
+    folderId: string,
+    parentPath: string
+  ): Promise<ProjectFile[]> {
+
+    const result =
+      await coreApiService.getFolderItems(
+        folderId
+      );
+
+    const items =
+      result.items ?? [];
+
+    return items.map(
+      (item: any) => ({
+
+        id: item.id,
+
+        name: item.name,
+
+        path: parentPath
+          ? `${parentPath}/${item.name}`
+          : item.name,
+
+        type:
+          item.type === "FOLDER"
+            ? "folder"
+            : item.name
+              ?.toLowerCase()
+              .endsWith(".csv")
+              ? "csv"
+              : (
+                item.name
+                  ?.toLowerCase()
+                  .match(
+                    /\.(jpg|jpeg|png|tif|tiff)$/
+                  )
+              )
+                ? "image"
+                : "file",
+      })
+    );
+  }
+
   public async discoverFiles(
     projectId: string
   ): Promise<ProjectFile[]> {
@@ -171,75 +254,75 @@ export class TrimbleProjectFilesService {
     );
   }
 
-public async discoverFolders(
-  projectId: string
-): Promise<ProjectFile[]> {
+  public async discoverFolders(
+    projectId: string
+  ): Promise<ProjectFile[]> {
 
-  const project =
-    await coreApiService.getProject(
-      projectId
-    );
-
-  const folders: ProjectFile[] = [];
-
-  async function traverseFolder(
-    folderId: string,
-    currentPath: string
-  ) {
-
-    const result =
-      await coreApiService.getFolderItems(
-        folderId
+    const project =
+      await coreApiService.getProject(
+        projectId
       );
 
-    const items =
-      result.items ?? [];
+    const folders: ProjectFile[] = [];
 
-    for (const item of items) {
+    async function traverseFolder(
+      folderId: string,
+      currentPath: string
+    ) {
 
-      const path =
-        currentPath
-          ? `${currentPath}/${item.name}`
-          : item.name;
+      const result =
+        await coreApiService.getFolderItems(
+          folderId
+        );
 
-      if (
-        item.type ===
-        "FOLDER"
-      ) {
+      const items =
+        result.items ?? [];
 
-        folders.push({
-          id:
-            item.id,
+      for (const item of items) {
 
-          name:
-            item.name,
-
-          path,
-
-          type:
-            "folder",
-        });
+        const path =
+          currentPath
+            ? `${currentPath}/${item.name}`
+            : item.name;
 
         if (
-          item.hasChildren
+          item.type ===
+          "FOLDER"
         ) {
 
-          await traverseFolder(
-            item.id,
-            path
-          );
+          folders.push({
+            id:
+              item.id,
+
+            name:
+              item.name,
+
+            path,
+
+            type:
+              "folder",
+          });
+
+          if (
+            item.hasChildren
+          ) {
+
+            await traverseFolder(
+              item.id,
+              path
+            );
+          }
         }
       }
     }
+
+    await traverseFolder(
+      project.rootId,
+      ""
+    );
+
+    return folders;
   }
-
-  await traverseFolder(
-    project.rootId,
-    ""
-  );
-
-  return folders;
-}
 
   public async discoverCsvFiles(
     projectId: string
@@ -338,66 +421,66 @@ public async discoverFolders(
       );
   }
 
-public async discoverImagesInFolder(
-  folderId: string
-): Promise<ProjectFile[]> {
+  public async discoverImagesInFolder(
+    folderId: string
+  ): Promise<ProjectFile[]> {
 
-  const allItems: any[] = [];
+    const allItems: any[] = [];
 
-  let result =
-    await coreApiService.getFolderItemsPaged(
-      folderId,
-      500
-    );
+    let result =
+      await coreApiService.getFolderItemsPaged(
+        folderId,
+        500
+      );
 
-  while (true) {
+    while (true) {
 
-    allItems.push(
-      ...(result.items ?? [])
-    );
+      allItems.push(
+        ...(result.items ?? [])
+      );
 
-    const nextUrl =
-      result.links?.next?.href;
+      const nextUrl =
+        result.links?.next?.href;
 
-    if (!nextUrl) {
-      break;
+      if (!nextUrl) {
+        break;
+      }
+
+      result =
+        await coreApiService.requestAbsolute(
+          nextUrl
+        );
     }
 
-    result =
-      await coreApiService.requestAbsolute(
-        nextUrl
+    return allItems
+      .filter(
+        (item: any) => {
+
+          const name =
+            item.name
+              ?.toLowerCase() ?? "";
+
+          return (
+            item.type === "FILE" &&
+            (
+              name.endsWith(".jpg") ||
+              name.endsWith(".jpeg") ||
+              name.endsWith(".png") ||
+              name.endsWith(".tif") ||
+              name.endsWith(".tiff")
+            )
+          );
+        }
+      )
+      .map(
+        (item: any) => ({
+          id: item.id,
+          name: item.name,
+          path: item.name,
+          type: "image" as const,
+        })
       );
   }
-
-  return allItems
-    .filter(
-      (item: any) => {
-
-        const name =
-          item.name
-            ?.toLowerCase() ?? "";
-
-        return (
-          item.type === "FILE" &&
-          (
-            name.endsWith(".jpg") ||
-            name.endsWith(".jpeg") ||
-            name.endsWith(".png") ||
-            name.endsWith(".tif") ||
-            name.endsWith(".tiff")
-          )
-        );
-      }
-    )
-    .map(
-      (item: any) => ({
-        id: item.id,
-        name: item.name,
-        path: item.name,
-        type: "image" as const,
-      })
-    );
-}
 
   public async loadCsvContentById(
     projectId: string,
@@ -447,43 +530,43 @@ public async discoverImagesInFolder(
     return await response.text();
   }
 
-public async getImageUrl(
-  projectId: string,
-  fileId: string
-): Promise<string> {
+  public async getImageUrl(
+    projectId: string,
+    fileId: string
+  ): Promise<string> {
 
-  const project =
-    await this.getProject(
-      projectId
-    );
+    const project =
+      await this.getProject(
+        projectId
+      );
 
-  const fileDetails =
-    await (
-      TC.TCPSClient as any
-    ).getFile(
-      project,
-      fileId
-    );
+    const fileDetails =
+      await (
+        TC.TCPSClient as any
+      ).getFile(
+        project,
+        fileId
+      );
 
-  const downloadUrlResult =
-    await (
-      TC.TCPSClient as any
-    ).getFileDownloadUrl(
-      fileDetails.data
-    );
+    const downloadUrlResult =
+      await (
+        TC.TCPSClient as any
+      ).getFileDownloadUrl(
+        fileDetails.data
+      );
 
-  const downloadUrl =
-    downloadUrlResult?.data?.url;
+    const downloadUrl =
+      downloadUrlResult?.data?.url;
 
-  if (!downloadUrl) {
+    if (!downloadUrl) {
 
-    throw new Error(
-      "Image download URL not found"
-    );
+      throw new Error(
+        "Image download URL not found"
+      );
+    }
+
+    return downloadUrl;
   }
-
-  return downloadUrl;
-}
 
   public async runDiscovery(
     projectId: string

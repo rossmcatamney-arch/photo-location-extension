@@ -17,6 +17,15 @@
   }
 }
 
+.tree-row {
+    transition: background-color 0.15s ease;
+}
+
+.tree-row:hover {
+    background-color: #eef6ff;
+    border-radius: 4px;
+}
+
 .hero {
   position: relative;
 

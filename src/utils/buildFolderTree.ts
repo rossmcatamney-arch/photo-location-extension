@@ -1,57 +1,30 @@
-export interface TreeNode {
-  name: string;
-  path: string;
-  children: TreeNode[];
-}
+import type {
+  FileTreeNode,
+} from "../models/FileTreeNode";
+
+import type {
+  ProjectFile,
+} from "../models/ProjectFile";
 
 export function buildFolderTree(
-  paths: string[]
-): TreeNode[] {
+  folders: ProjectFile[]
+): FileTreeNode[] {
 
-  const root: TreeNode = {
-    name: "root",
-    path: "",
-    children: [],
-  };
+  return folders.map(
+    (folder): FileTreeNode => ({
 
-  for (const fullPath of paths) {
+      name: folder.name,
 
-    const parts =
-      fullPath
-        .split("/")
-        .filter(Boolean);
+      path: folder.path,
 
-    let current = root;
+      folder,
 
-    let currentPath = "";
+      children: [],
 
-    for (const part of parts) {
+      isLoaded: false,
 
-      currentPath +=
-        "/" + part;
+      isExpanded: false,
 
-      let existing =
-        current.children.find(
-          child =>
-            child.name === part
-        );
-
-      if (!existing) {
-
-        existing = {
-          name: part,
-          path: currentPath,
-          children: [],
-        };
-
-        current.children.push(
-          existing
-        );
-      }
-
-      current = existing;
-    }
-  }
-
-  return root.children;
+    })
+  );
 }

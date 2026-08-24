@@ -3,8 +3,17 @@ import type {
 } from "./ProjectFile";
 
 export interface FileTreeNode {
+
   name: string;
+
   path: string;
+
   folder?: ProjectFile;
+
   children: FileTreeNode[];
+
+  isLoaded: boolean;
+
+  isExpanded: boolean;
+
 }
