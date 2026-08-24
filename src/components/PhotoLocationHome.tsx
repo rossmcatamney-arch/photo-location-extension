@@ -4,6 +4,22 @@ import {
 } from "react";
 
 import {
+  PhotoMapPanel,
+} from "./PhotoMapPanel";
+
+import {
+  PhotoListPanel,
+} from "./PhotoListPanel";
+
+import {
+  SelectedPhotoPanel,
+} from "./SelectedPhotoPanel";
+
+import {
+  ImageViewerModal,
+} from "./ImageViewerModal";
+
+import {
   folderPreviewService,
 } from "../services/FolderPreviewService";
 
@@ -67,10 +83,6 @@ import {
   ExplorerDialog,
 } from "./ExplorerDialog";
 
-import {
-  PhotoMap,
-} from "./PhotoMap";
-
 import type {
   DatasetSummary,
 } from "../models/DatasetSummary";
@@ -112,6 +124,12 @@ export function PhotoLocationHome({
     selectedPhotoUrl,
     setSelectedPhotoUrl,
   ] = useState("");
+
+  const [
+    showImageViewer,
+    setShowImageViewer,
+  ] = useState(false);
+
 
   const [
     basemap,
@@ -1135,274 +1153,88 @@ export function PhotoLocationHome({
             }}
           >
 
-            <div
-              style={{
-                marginBottom: 10,
-              }}
-            >
-
-              <strong>
-                Basemap
-              </strong>
-
-              <div>
-
-                <select
-                  value={basemap}
-                  onChange={event =>
-                    setBasemap(
-                      event.target.value
-                    )
-                  }
-                >
-
-                  <option value="none">
-                    None
-                  </option>
-
-                  <option value="street">
-                    Street
-                  </option>
-
-                  <option value="satellite">
-                    Satellite
-                  </option>
-
-                </select>
-
-              </div>
-
-            </div>
-
-            <PhotoMap
+            <PhotoMapPanel
+              basemap={basemap}
+              onBasemapChange={setBasemap}
               photoNodes={photoNodes}
               selectedPhoto={selectedPhoto}
               coordinateSystem={
                 configuration.coordinateSystem
               }
-              basemap={basemap}
-              onPhotoSelected={
-                setSelectedPhoto
-              }
+              onPhotoSelected={setSelectedPhoto}
             />
 
             {photoNodes.length > 0 && (
 
-              <div
-                style={{
-                  display: "flex",
-                  gap: 20,
-                  marginTop: 20,
-                  alignItems: "flex-start",
-                }}
-              >
+          <div
+            style={{
+              display: "flex",
+              gap: 20,
+              marginTop: 20,
+              alignItems: "flex-start",
+            }}
+          >
 
-                <div
-                  style={{
-                    flex: 1,
-                  }}
-                >
+            <PhotoListPanel
+              searchText={searchText}
+              onSearchTextChange={setSearchText}
+              photoNodes={filteredPhotos}
+              selectedPhotoId={selectedPhoto?.id}
+              onPhotoSelected={setSelectedPhoto}
+            />
 
-                  <h3>
-                    Photo Nodes
-                  </h3>
-
-                  <input
-                    placeholder="Search photos..."
-                    value={searchText}
-                    onChange={event =>
-                      setSearchText(
-                        event.target.value
-                      )
-                    }
-                    style={{
-                      width: "100%",
-                      padding: 8,
-                      marginBottom: 10,
-                      borderRadius: 4,
-                      border:
-                        "1px solid #ccc",
-                    }}
-                  />
-
-                  <div
-                    style={{
-                      maxHeight: 300,
-                      overflowY: "auto",
-                      border:
-                        "1px solid #ccc",
-                      borderRadius: 8,
-                      marginTop: 10,
-                    }}
-                  >
-
-                    {filteredPhotos.map(
-                      photo => (
-
-                        <div
-                          key={photo.id}
-                          onClick={() =>
-                            setSelectedPhoto(
-                              photo
-                            )
-                          }
-                          style={{
-                            padding: 10,
-                            cursor: "pointer",
-                            borderBottom:
-                              "1px solid #eee",
-                            background:
-                              selectedPhoto?.id ===
-                                photo.id
-                                ? "#e6f2ff"
-                                : "transparent",
-                          }}
-                        >
-                          {photo.imageName}
-                        </div>
-
-                      )
-                    )}
-
-                  </div>
-
-                  <div
-                    style={{
-                      marginTop: 10,
-                    }}
-                  >
-                    Node Count:
-                    {" "}
-                    {filteredPhotos.length}
-                    {" of "}
-                    {photoNodes.length}
-                  </div>
-
-                </div>
-
-                {selectedPhoto && (
-
-                  <div
-                    style={{
-                      width: "550px",
-                      padding: 20,
-                      border:
-                        "1px solid #ccc",
-                      borderRadius: 8,
-                    }}
-                  >
-
-                    <h3>
-                      Selected Photo
-                    </h3>
-
-                    {selectedPhotoUrl && (
-                      <img
-                        src={selectedPhotoUrl}
-                        alt={selectedPhoto.imageName}
-                        style={{
-                          maxWidth: "100%",
-                          maxHeight: 700,
-                          marginBottom: 15,
-                          cursor: "zoom-in",
-                          border: "1px solid #ccc",
-                          borderRadius: 8,
-                        }}
-                      />
-                    )}
-
-
-                    <div>
-                      <strong>Name:</strong>{" "}
-                      {selectedPhoto.imageName}
-                    </div>
-
-                    <div>
-                      <strong>X:</strong>{" "}
-                      {selectedPhoto.x}
-                    </div>
-
-                    <div>
-                      <strong>Y:</strong>{" "}
-                      {selectedPhoto.y}
-                    </div>
-
-                    <div>
-                      <strong>Z:</strong>{" "}
-                      {selectedPhoto.z}
-                    </div>
-
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: 10,
-                        marginTop: 10,
-                      }}
-                    >
-
-                      <button
-                        disabled={
-                          selectedPhotoIndex <= 0
-                        }
-                        onClick={() =>
-                          setSelectedPhoto(
-                            filteredPhotos[
-                            selectedPhotoIndex - 1
-                            ]
-                          )
-                        }
-                      >
-                        Previous
-                      </button>
-
-                      <button
-                        disabled={
-                          selectedPhotoIndex >=
-                          filteredPhotos.length - 1
-                        }
-                        onClick={() =>
-                          setSelectedPhoto(
-                            filteredPhotos[
-                            selectedPhotoIndex + 1
-                            ]
-                          )
-                        }
-                      >
-                        Next
-                      </button>
-
-                    </div>
-
-                  </div>
-
-                )}
-
-              </div>
-
+            {selectedPhoto && (
+              <SelectedPhotoPanel
+                selectedPhoto={selectedPhoto}
+                selectedPhotoUrl={selectedPhotoUrl}
+                selectedPhotoIndex={selectedPhotoIndex}
+                totalPhotos={filteredPhotos.length}
+                onPrevious={() =>
+                  setSelectedPhoto(
+                    filteredPhotos[
+                    selectedPhotoIndex - 1
+                    ]
+                  )
+                }
+                onNext={() =>
+                  setSelectedPhoto(
+                    filteredPhotos[
+                    selectedPhotoIndex + 1
+                    ]
+                  )
+                }
+                onOpenViewer={() =>
+                  setShowImageViewer(true)
+                }
+              />
             )}
 
-            <h3>
-              Matching Results
-            </h3>
-
-            <div>
-              Total Poses:{" "}
-              {matchingResult.totalPoses}
-            </div>
-
-            <div>
-              Available Images:{" "}
-              {matchingResult.availableImages}
-            </div>
-
-            <div>
-              Missing Images:{" "}
-              {matchingResult.missingImages}
-            </div>
           </div>
+
         )}
 
+        <h3>
+          Matching Results
+        </h3>
+
+        <div>
+          Total Poses:{" "}
+          {matchingResult.totalPoses}
+        </div>
+
+        <div>
+          Available Images:{" "}
+          {matchingResult.availableImages}
+        </div>
+
+        <div>
+          Missing Images:{" "}
+          {matchingResult.missingImages}
+        </div>
       </div>
+        )}
+
+    </div >
 
       <ExplorerDialog
         isOpen={
@@ -1471,6 +1303,7 @@ export function PhotoLocationHome({
                 folder.path
               )
         }
+
       />
 
       <ExplorerDialog
@@ -1541,7 +1374,38 @@ export function PhotoLocationHome({
               )
         }
       />
-
+      <ImageViewerModal
+        isOpen={
+          showImageViewer &&
+          !!selectedPhoto &&
+          !!selectedPhotoUrl
+        }
+        imageUrl={selectedPhotoUrl}
+        photoName={
+          selectedPhoto?.imageName ?? ""
+        }
+        selectedPhotoIndex={
+          selectedPhotoIndex
+        }
+        totalPhotos={filteredPhotos.length}
+        onPrevious={() =>
+          setSelectedPhoto(
+            filteredPhotos[
+            selectedPhotoIndex - 1
+            ]
+          )
+        }
+        onNext={() =>
+          setSelectedPhoto(
+            filteredPhotos[
+            selectedPhotoIndex + 1
+            ]
+          )
+        }
+        onClose={() =>
+          setShowImageViewer(false)
+        }
+      />
     </>
 
   );

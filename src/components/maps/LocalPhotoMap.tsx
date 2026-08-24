@@ -8,6 +8,7 @@ import {
     Stage,
     Layer,
     Circle,
+    Line,
 } from "react-konva";
 
 import type {
@@ -418,10 +419,54 @@ export function LocalPhotoMap({
                                     selectedPhoto?.id ===
                                     photo.id;
 
+                                const headingLength =
+                                    selected
+                                        ? 22
+                                        : 12;
+
+                                const yaw =
+                                    photo.yaw ?? 0;
+
+                                const radians =
+                                    (yaw * Math.PI) / 180;
+
+                                const headingX =
+                                    x +
+                                    Math.sin(radians) *
+                                    headingLength;
+
+                                const headingY =
+                                    y -
+                                    Math.cos(radians) *
+                                    headingLength;
+
                                 return (
                                     <React.Fragment
                                         key={photo.id}
                                     >
+
+                                        {photo.yaw !== undefined && (
+                                            <Line
+                                                points={[
+                                                    x,
+                                                    y,
+                                                    headingX,
+                                                    headingY,
+                                                ]}
+                                                stroke={
+                                                    selected
+                                                        ? "#66ccff"
+                                                        : "#57c84d"
+                                                }
+                                                strokeWidth={
+                                                    selected
+                                                        ? 3
+                                                        : 2
+                                                }
+                                                lineCap="round"
+                                            />
+                                        )}
+
 
                                         {selected && (
                                             <Circle
