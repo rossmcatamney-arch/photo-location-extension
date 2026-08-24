@@ -26,9 +26,14 @@ export class DatasetSummaryService {
             return null;
         }
 
+        const difference =
+            Math.abs(
+                folderPreview.imageCount -
+                csvPreview.rowCount
+            );
+
         const ready =
-            folderPreview.imageCount ===
-            csvPreview.rowCount;
+            difference === 0;
 
         return {
 
@@ -38,12 +43,14 @@ export class DatasetSummaryService {
             csvRowCount:
                 csvPreview.rowCount,
 
+            difference,
+
             ready,
 
             message:
                 ready
                     ? "Image count matches CSV row count."
-                    : "Image count does not match CSV row count.",
+                    : `${difference} record(s) do not match.`,
 
         };
 

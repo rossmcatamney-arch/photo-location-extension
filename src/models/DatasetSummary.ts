@@ -4,6 +4,8 @@ export interface DatasetSummary {
 
     csvRowCount: number;
 
+    difference: number;
+
     ready: boolean;
 
     message: string;

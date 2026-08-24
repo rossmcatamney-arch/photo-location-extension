@@ -25,9 +25,6 @@ export class CsvPreviewService {
                 "X",
                 "Y",
                 "Z",
-                "Yaw",
-                "Pitch",
-                "Roll",
             ],
 
             firstImage:

@@ -46,21 +46,9 @@ export function CsvPreviewPanel({
                 }}
             >
                 Columns:
+                {" "}
+                {preview.columns.join(", ")}
             </div>
-
-            {
-                preview.columns.map(
-                    column => (
-
-                        <div
-                            key={column}
-                        >
-                            ✓ {column}
-                        </div>
-
-                    )
-                )
-            }
 
             {
                 preview.firstImage && (
@@ -70,7 +58,7 @@ export function CsvPreviewPanel({
                             marginTop: 8,
                         }}
                     >
-                        First Record:
+                        Example Image:
                         {" "}
                         {preview.firstImage}
                     </div>

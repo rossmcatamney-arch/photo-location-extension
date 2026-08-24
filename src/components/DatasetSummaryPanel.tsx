@@ -47,6 +47,12 @@ export function DatasetSummaryPanel({
                 {summary.csvRowCount}
             </div>
 
+            <div>
+                Difference:
+                {" "}
+                {summary.difference}
+            </div>
+
             <div
                 style={{
                     marginTop: 8,
@@ -56,7 +62,7 @@ export function DatasetSummaryPanel({
                 {
                     summary.ready
                         ? "✅ Ready to Validate"
-                        : "⚠ Count Mismatch"
+                        : `⚠ Count Mismatch (${summary.difference})`
                 }
             </div>
 

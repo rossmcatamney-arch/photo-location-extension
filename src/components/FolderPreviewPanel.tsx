@@ -40,24 +40,6 @@ export function FolderPreviewPanel({
                 {preview.imageCount}
             </div>
 
-            <div>
-                JPG Files:
-                {" "}
-                {preview.jpgCount}
-            </div>
-
-            <div>
-                JPEG Files:
-                {" "}
-                {preview.jpegCount}
-            </div>
-
-            <div>
-                PNG Files:
-                {" "}
-                {preview.pngCount}
-            </div>
-
             <div
                 style={{
                     marginTop: 8,
