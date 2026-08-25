@@ -41,6 +41,12 @@ export function LocalPhotoMap({
     const stageRef =
         useRef<any>(null);
 
+    const initialFitDone =
+        useRef(false);
+
+    const firstSelectionHandled =
+        useRef(false);
+
     const [
         scale,
         setScale,
@@ -77,6 +83,7 @@ export function LocalPhotoMap({
         );
 
     }
+
 
     const width = 1000;
     const height = 500;
@@ -183,6 +190,7 @@ export function LocalPhotoMap({
 
     const fitExtents = () => {
 
+
         const projectWidth =
             rangeX * fitScale;
 
@@ -219,9 +227,33 @@ export function LocalPhotoMap({
 
     };
 
+useEffect(() => {
+
+    if (
+        photoNodes.length === 0 ||
+        initialFitDone.current
+    ) {
+        return;
+    }
+
+    fitExtents();
+
+    initialFitDone.current = true;
+
+}, [
+    photoNodes,
+]);
+
     useEffect(() => {
 
         if (!selectedPhoto) {
+            return;
+        }
+
+        if (!firstSelectionHandled.current) {
+
+            firstSelectionHandled.current = true;
+
             return;
         }
 
@@ -393,8 +425,8 @@ export function LocalPhotoMap({
 
                     <Layer>
                         {
-    showTrajectory &&
-    photoNodes.slice(1).map(
+                            showTrajectory &&
+                            photoNodes.slice(1).map(
                                 (photo, index) => {
 
                                     const previous =

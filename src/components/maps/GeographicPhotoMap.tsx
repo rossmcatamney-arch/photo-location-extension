@@ -4,6 +4,10 @@ import {
     useState,
 } from "react";
 
+import {
+    BasemapService,
+} from "../../services/BasemapService";
+
 import * as maplibregl from "maplibre-gl";
 
 import {
@@ -45,6 +49,9 @@ export function GeographicPhotoMap({
         "BASEMAP",
         basemap
     );
+
+    const initialFitDone =
+        useRef(false);
 
     const mapRef =
         useRef<HTMLDivElement>(null);
@@ -130,10 +137,24 @@ export function GeographicPhotoMap({
             () => {
 
                 console.log(
+                    "HAS PHOTO ROUTE SOURCE",
+                    mapInstance.current?.getSource(
+                        "photo-route"
+                    )
+                );
+
+                console.log(
                     "MAP LOADED"
                 );
 
-                setMapLoaded(true);
+                console.log(
+                    "HAS ROUTE LAYER",
+                    mapInstance.current?.getLayer(
+                        "photo-route"
+                    )
+                );
+
+                console.log("ADDING SOURCE");
 
                 mapInstance.current?.addSource(
                     "photo-route",
@@ -150,16 +171,42 @@ export function GeographicPhotoMap({
                     }
                 );
 
+
+                console.log(
+                    "SOURCE CREATED",
+                    mapInstance.current?.getSource(
+                        "photo-route"
+                    )
+                );
+
+                console.log("ADDING LAYER");
+
                 mapInstance.current?.addLayer({
                     id: "photo-route",
                     type: "line",
                     source: "photo-route",
+                    layout: {
+                        "line-join": "round",
+                        "line-cap": "round",
+                    },
                     paint: {
-                        "line-color": "#4a90e2",
-                        "line-width": 2,
-                        "line-opacity": 0.35,
+                        "line-color": "#ff0000",
+                        "line-width": 20,
+                        "line-opacity": 1,
                     },
                 });
+
+                console.log(
+                    "LAYER CREATED",
+                    mapInstance.current?.getLayer(
+                        "photo-route"
+                    )
+                );
+                console.log(
+                    "CURRENT STYLE",
+                    mapInstance.current?.getStyle()
+                );
+                setMapLoaded(true);
 
             }
         );
@@ -223,28 +270,7 @@ export function GeographicPhotoMap({
                 first.y
             );
 
-        console.log(
-            "FIRST PHOTO XY",
-            first.x,
-            first.y
-        );
-
-        console.log(
-            "FIRST PHOTO LL",
-            firstConverted
-        );
-
         if (firstConverted) {
-
-            console.log(
-                "LONGITUDE",
-                firstConverted[0]
-            );
-
-            console.log(
-                "LATITUDE",
-                firstConverted[1]
-            );
 
         }
 
@@ -255,6 +281,11 @@ export function GeographicPhotoMap({
         markersRef.current = [];
 
         const routeCoordinates: [number, number][] = [];
+
+        console.log(
+            "BUILDING TRAJECTORY",
+            photoNodes.length
+        );
 
 
         const bounds =
@@ -271,22 +302,6 @@ export function GeographicPhotoMap({
 
             if (markersRef.current.length < 5) {
 
-                console.log(
-                    "PHOTO",
-                    photo.imageName
-                );
-
-                console.log(
-                    "XY",
-                    photo.x,
-                    photo.y
-                );
-
-                console.log(
-                    "WGS84",
-                    converted
-                );
-
             }
 
             if (!converted) {
@@ -296,6 +311,10 @@ export function GeographicPhotoMap({
                 converted[0],
                 converted[1],
             ]);
+
+            if (routeCoordinates.length <= 5) {
+
+            }
             bounds.extend([
                 converted[0],
                 converted[1],
@@ -329,7 +348,8 @@ export function GeographicPhotoMap({
                 photo.imageName;
 
             element.style.border =
-                "3px solid white";
+                "1px solid white";
+
 
             element.style.cursor =
                 "pointer";
@@ -356,15 +376,26 @@ export function GeographicPhotoMap({
             );
 
         }
-if (
-    mapLoaded &&
-    mapInstance.current?.isStyleLoaded()
-) {
+        if (
+            mapLoaded
+        ) {
 
             const routeSource =
                 mapInstance.current?.getSource(
                     "photo-route"
                 );
+
+            console.log(
+                "ROUTE SOURCE",
+                routeSource
+            );
+
+            console.log(
+                "ROUTE LAYER",
+                mapInstance.current?.getLayer(
+                    "photo-route"
+                )
+            );
 
             if (
                 routeSource &&
@@ -380,14 +411,55 @@ if (
                 );
 
                 console.log(
+                    "FIRST ROUTE POINT",
+                    routeCoordinates[0]
+                );
+
+                console.log(
+                    "LAST ROUTE POINT",
+                    routeCoordinates[
+                    routeCoordinates.length - 1
+                    ]
+                );
+
+                console.log(
                     "SHOW TRAJECTORY",
                     showTrajectory
                 );
 
+                console.log(
+                    "ROUTE COORDINATES",
+                    routeCoordinates.length
+                );
 
-                (
-                    routeSource as maplibregl.GeoJSONSource
-                ).setData({
+                console.log(
+                    routeCoordinates.slice(0, 5)
+                );
+
+                console.log(
+                    "SHOW TRAJECTORY",
+                    showTrajectory
+                );
+
+                console.log(
+                    "ROUTE POINT COUNT",
+                    routeCoordinates.length
+                );
+
+                console.log(
+                    "SETTING ROUTE DATA",
+                    routeCoordinates.length
+                );
+
+                console.log(
+                    "ROUTE SOURCE TYPE",
+                    routeSource?.constructor?.name
+                );
+
+                const geoJsonSource =
+                    routeSource as maplibregl.GeoJSONSource;
+
+                geoJsonSource.setData({
                     type: "Feature",
                     properties: {},
                     geometry: {
@@ -401,24 +473,54 @@ if (
 
             }
         }
-        if (!bounds.isEmpty()) {
+        if (
+            !bounds.isEmpty() &&
+            !initialFitDone.current
+        ) {
+
+            initialFitDone.current = true;
+
+            const sw = bounds.getSouthWest();
+            const ne = bounds.getNorthEast();
 
             console.log(
                 "AUTO FIT SW",
-                bounds.getSouthWest()
+                sw.lng,
+                sw.lat
             );
 
             console.log(
                 "AUTO FIT NE",
-                bounds.getNorthEast()
+                ne.lng,
+                ne.lat
+            );
+
+            console.log(
+                "BOUND COUNT",
+                routeCoordinates.length
             );
 
             mapInstance.current.fitBounds(
                 bounds,
                 {
-                    padding: 50,
-                    maxZoom: 17,
+                    padding: {
+                        top: 20,
+                        bottom: 20,
+                        left: 20,
+                        right: 20,
+                    },
+                    maxZoom: 19,
                 }
+            );
+
+            console.log(
+                "MAP CENTER AFTER FIT",
+                mapInstance.current.getCenter()
+            );
+
+            console.log(
+                "MAP ZOOM AFTER FIT",
+                mapInstance.current.getZoom()
             );
 
             setTimeout(
@@ -442,7 +544,8 @@ if (
         if (
             !mapInstance.current ||
             !mapLoaded ||
-            !selectedPhoto
+            !selectedPhoto ||
+            !initialFitDone.current
         ) {
             return;
         }
@@ -458,13 +561,13 @@ if (
             return;
         }
 
-        mapInstance.current.flyTo({
-            center: [
-                converted[0],
-                converted[1],
-            ],
-            duration: 750,
-        });
+        // mapInstance.current.flyTo({
+        //     center: [
+        //         converted[0],
+        //         converted[1],
+        //     ],
+        //     duration: 750,
+        // });
 
     }, [
         selectedPhoto,
@@ -472,17 +575,29 @@ if (
         mapLoaded,
     ]);
 
-    //
-    // Change basemap
-    //
-    useEffect(() => {
 
-        console.log(
-            "SWITCHING BASEMAP",
-            basemap
-        );
+//
+// Change basemap
+//
+useEffect(() => {
 
-    }, [basemap]);
+    if (!mapInstance.current) {
+        return;
+    }
+
+    console.log(
+        "SWITCHING BASEMAP",
+        basemap
+    );
+
+mapInstance.current.setStyle(
+    BasemapService.getStyle(
+        basemap
+    ) as any
+);
+
+
+}, [basemap]);
 
     return (
 
@@ -558,8 +673,13 @@ if (
                             mapInstance.current?.fitBounds(
                                 bounds,
                                 {
-                                    padding: 50,
-                                    maxZoom: 17,
+                                    padding: {
+                                        top: 20,
+                                        bottom: 20,
+                                        left: 20,
+                                        right: 20,
+                                    },
+                                    maxZoom: 19,
                                 }
                             );
 
