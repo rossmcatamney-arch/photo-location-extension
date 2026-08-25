@@ -120,6 +120,23 @@ export function PhotoLocationHome({
     null
   );
 
+  function getDistance(
+    a: PhotoNode,
+    b: PhotoNode
+  ): number {
+
+    const dx = a.x - b.x;
+    const dy = a.y - b.y;
+    const dz = a.z - b.z;
+
+    return Math.sqrt(
+      dx * dx +
+      dy * dy +
+      dz * dz
+    );
+
+  }
+
   const [
     selectedPhotoUrl,
     setSelectedPhotoUrl,
@@ -203,6 +220,17 @@ export function PhotoLocationHome({
   >(
     null
   );
+
+  const [
+    extraImageCount,
+    setExtraImageCount,
+  ] = useState(0);
+
+  const [
+    missingImageCount,
+    setMissingImageCount,
+  ] = useState(0);
+
 
   // Legacy discovery lists removed.
   // ExplorerDialog now uses rootItems.
@@ -329,6 +357,30 @@ export function PhotoLocationHome({
           selectedPhoto.id
       )
       : -1;
+
+  const nearestStations =
+    selectedPhoto
+      ? photoNodes
+        .filter(
+          photo =>
+            photo.id !==
+            selectedPhoto.id
+        )
+        .map(photo => ({
+          photo,
+          distance:
+            getDistance(
+              selectedPhoto,
+              photo
+            )
+        }))
+        .sort(
+          (a, b) =>
+            a.distance -
+            b.distance
+        )
+        .slice(0, 5)
+      : [];
 
   useEffect(() => {
 
@@ -460,6 +512,11 @@ export function PhotoLocationHome({
             csvContent
           );
 
+        console.log(
+          "FIRST CSV IMAGE",
+          poses[0]?.imageName
+        );
+
         setDiscoveryStatus(
           "Loading images..."
         );
@@ -471,6 +528,10 @@ export function PhotoLocationHome({
             );
 
         console.log(
+          "FIRST FOLDER IMAGE",
+          imageFiles[0]?.name
+        );
+        console.log(
           "POSE COUNT",
           poses.length
         );
@@ -478,6 +539,88 @@ export function PhotoLocationHome({
         console.log(
           "IMAGE COUNT",
           imageFiles.length
+        );
+
+        const normalizeName = (
+          name: string
+        ) =>
+          name
+            .replace(/\\/g, "/")
+            .split("/")
+            .pop()
+            ?.toLowerCase() ?? "";
+
+        const poseNames = new Set(
+          poses.map(p =>
+            normalizeName(
+              p.imageName
+            )
+          )
+        );
+
+
+        const imageNames = new Set(
+          imageFiles.map(i =>
+            normalizeName(
+              i.name
+            )
+          )
+        );
+
+        const extraImages =
+          imageFiles.filter(
+            image =>
+              !poseNames.has(
+                normalizeName(image.name)
+              )
+          );
+
+        const missingImages =
+          poses.filter(
+            pose =>
+              !imageNames.has(
+                normalizeName(
+                  pose.imageName
+                )
+              )
+          );
+
+        console.log(
+          "EXTRA IMAGES",
+          extraImages
+        );
+
+        console.log(
+          "MISSING IMAGES",
+          missingImages
+        );
+
+        setExtraImageCount(
+          extraImages.length
+        );
+
+        setMissingImageCount(
+          missingImages.length
+        );
+
+        console.log(
+          "EXTRA IMAGE COUNT",
+          extraImages.length
+        );
+
+        console.log(
+          "MISSING IMAGE COUNT",
+          missingImages.length
+        );
+
+        console.log(
+          "EXTRA IMAGES",
+          extraImages
+        );
+
+        console.log(
+          "MISSING IMAGES",
+          missingImages
         );
 
         console.log(
@@ -490,6 +633,14 @@ export function PhotoLocationHome({
             poses,
             imageFiles
           );
+
+        console.log(
+          "Missing Records",
+          result.records.filter(
+            record =>
+              record.imageStatus !== "available"
+          )
+        );
 
         const nodes =
           result.records
@@ -1166,75 +1317,141 @@ export function PhotoLocationHome({
 
             {photoNodes.length > 0 && (
 
-          <div
-            style={{
-              display: "flex",
-              gap: 20,
-              marginTop: 20,
-              alignItems: "flex-start",
-            }}
-          >
+              <div
+                style={{
+                  display: "flex",
+                  gap: 20,
+                  marginTop: 20,
+                  alignItems: "flex-start",
+                }}
+              >
 
-            <PhotoListPanel
-              searchText={searchText}
-              onSearchTextChange={setSearchText}
-              photoNodes={filteredPhotos}
-              selectedPhotoId={selectedPhoto?.id}
-              onPhotoSelected={setSelectedPhoto}
-            />
+                <PhotoListPanel
+                  searchText={searchText}
+                  onSearchTextChange={setSearchText}
+                  photoNodes={filteredPhotos}
+                  selectedPhotoId={selectedPhoto?.id}
+                  onPhotoSelected={setSelectedPhoto}
+                />
 
-            {selectedPhoto && (
-              <SelectedPhotoPanel
-                selectedPhoto={selectedPhoto}
-                selectedPhotoUrl={selectedPhotoUrl}
-                selectedPhotoIndex={selectedPhotoIndex}
-                totalPhotos={filteredPhotos.length}
-                onPrevious={() =>
-                  setSelectedPhoto(
-                    filteredPhotos[
-                    selectedPhotoIndex - 1
-                    ]
-                  )
-                }
-                onNext={() =>
-                  setSelectedPhoto(
-                    filteredPhotos[
-                    selectedPhotoIndex + 1
-                    ]
-                  )
-                }
-                onOpenViewer={() =>
-                  setShowImageViewer(true)
-                }
-              />
+                {selectedPhoto && (
+                  <>
+                    <SelectedPhotoPanel
+                      selectedPhoto={selectedPhoto}
+                      selectedPhotoUrl={selectedPhotoUrl}
+                      selectedPhotoIndex={selectedPhotoIndex}
+                      totalPhotos={filteredPhotos.length}
+                      onPrevious={() =>
+                        setSelectedPhoto(
+                          filteredPhotos[
+                          selectedPhotoIndex - 1
+                          ]
+                        )
+                      }
+                      onNext={() =>
+                        setSelectedPhoto(
+                          filteredPhotos[
+                          selectedPhotoIndex + 1
+                          ]
+                        )
+                      }
+                      onOpenViewer={() =>
+                        setShowImageViewer(true)
+                      }
+                    />
+
+                    <div
+                      style={{
+                        width: 300,
+                        padding: 12,
+                        border: "1px solid #ccc",
+                        borderRadius: 8,
+                        background: "#fafafa",
+                      }}
+                    >
+                      <h3>Nearby Stations</h3>
+
+                      {nearestStations.map(
+                        station => (
+                          <div
+                            key={station.photo.id}
+                            onClick={() =>
+                              setSelectedPhoto(
+                                station.photo
+                              )
+                            }
+                            style={{
+                              padding: 8,
+                              borderBottom:
+                                "1px solid #eee",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <div>
+                              {station.photo.imageName}
+                            </div>
+
+                            <div
+                              style={{
+                                color: "#666",
+                                fontSize: "0.85rem",
+                              }}
+                            >
+                              {station.distance.toFixed(2)} m
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </>
+                )}
+
+              </div>
+
             )}
 
+            <h3>
+              Dataset Validation
+            </h3>
+
+            <div>
+              CSV Records: {matchingResult.totalPoses}
+            </div>
+
+            <div>
+              Matched Photos: {matchingResult.availableImages}
+            </div>
+
+            <div>
+              Missing Images: {missingImageCount}
+            </div>
+
+            <div>
+              Extra Images: {extraImageCount}
+            </div>
+
+            <div
+              style={{
+                marginTop: 10,
+                padding: 10,
+                background:
+                  missingImageCount === 0
+                    ? "#e8f5e9"
+                    : "#fff3cd",
+                borderRadius: 4,
+                fontWeight: "bold",
+              }}
+            >
+              {missingImageCount === 0
+                ? extraImageCount > 0
+                  ? `✅ Data Validated - All CSV photo records matched successfully. ${extraImageCount} additional panorama image(s) in the folder are not referenced by the CSV and have been ignored.`
+                  : "✅ Data Validated - All CSV photo records matched successfully."
+                : `⚠ ${missingImageCount} CSV record(s) could not be matched to an image.`}
+            </div>
           </div>
-
         )}
 
-        <h3>
-          Matching Results
-        </h3>
-
-        <div>
-          Total Poses:{" "}
-          {matchingResult.totalPoses}
-        </div>
-
-        <div>
-          Available Images:{" "}
-          {matchingResult.availableImages}
-        </div>
-
-        <div>
-          Missing Images:{" "}
-          {matchingResult.missingImages}
-        </div>
-      </div>
-        )}
-
-    </div >
+      </div >
 
       <ExplorerDialog
         isOpen={

@@ -1,6 +1,7 @@
 import {
     useEffect,
     useRef,
+    useState,
 } from "react";
 
 import * as maplibregl from "maplibre-gl";
@@ -56,6 +57,16 @@ export function GeographicPhotoMap({
     const markersRef =
         useRef<maplibregl.Marker[]>([]);
 
+    const [
+        showTrajectory,
+        setShowTrajectory,
+    ] = useState(true);
+
+    const [
+        mapLoaded,
+        setMapLoaded,
+    ] = useState(false);
+
     //
     // Create map once
     //
@@ -99,7 +110,7 @@ export function GeographicPhotoMap({
                     -41.46,
                 ],
 
-                zoom: 18,
+                zoom: 17,
 
             });
 
@@ -121,6 +132,34 @@ export function GeographicPhotoMap({
                 console.log(
                     "MAP LOADED"
                 );
+
+                setMapLoaded(true);
+
+                mapInstance.current?.addSource(
+                    "photo-route",
+                    {
+                        type: "geojson",
+                        data: {
+                            type: "Feature",
+                            properties: {},
+                            geometry: {
+                                type: "LineString",
+                                coordinates: [],
+                            },
+                        },
+                    }
+                );
+
+                mapInstance.current?.addLayer({
+                    id: "photo-route",
+                    type: "line",
+                    source: "photo-route",
+                    paint: {
+                        "line-color": "#4a90e2",
+                        "line-width": 2,
+                        "line-opacity": 0.35,
+                    },
+                });
 
             }
         );
@@ -147,11 +186,7 @@ export function GeographicPhotoMap({
 
                 console.error(
                     "MAP ERROR DETAIL",
-                    JSON.stringify(
-                        e,
-                        null,
-                        2
-                    )
+                    e
                 );
 
             }
@@ -167,6 +202,7 @@ export function GeographicPhotoMap({
 
         if (
             !mapInstance.current ||
+            !mapLoaded ||
             photoNodes.length === 0
         ) {
             return;
@@ -218,6 +254,9 @@ export function GeographicPhotoMap({
 
         markersRef.current = [];
 
+        const routeCoordinates: [number, number][] = [];
+
+
         const bounds =
             new maplibregl.LngLatBounds();
 
@@ -253,7 +292,10 @@ export function GeographicPhotoMap({
             if (!converted) {
                 continue;
             }
-
+            routeCoordinates.push([
+                converted[0],
+                converted[1],
+            ]);
             bounds.extend([
                 converted[0],
                 converted[1],
@@ -280,8 +322,11 @@ export function GeographicPhotoMap({
 
             element.style.background =
                 isSelected
-                    ? "#0066ff"
-                    : "#ff6600";
+                    ? "#0057d8"
+                    : "#ff9000";
+
+            element.title =
+                photo.imageName;
 
             element.style.border =
                 "3px solid white";
@@ -311,7 +356,51 @@ export function GeographicPhotoMap({
             );
 
         }
+if (
+    mapLoaded &&
+    mapInstance.current?.isStyleLoaded()
+) {
 
+            const routeSource =
+                mapInstance.current?.getSource(
+                    "photo-route"
+                );
+
+            if (
+                routeSource &&
+                "setData" in routeSource
+            ) {
+                console.log(
+                    "ROUTE SOURCE FOUND"
+                );
+
+                console.log(
+                    "ROUTE POINT COUNT",
+                    routeCoordinates.length
+                );
+
+                console.log(
+                    "SHOW TRAJECTORY",
+                    showTrajectory
+                );
+
+
+                (
+                    routeSource as maplibregl.GeoJSONSource
+                ).setData({
+                    type: "Feature",
+                    properties: {},
+                    geometry: {
+                        type: "LineString",
+                        coordinates:
+                            showTrajectory
+                                ? routeCoordinates
+                                : [],
+                    },
+                });
+
+            }
+        }
         if (!bounds.isEmpty()) {
 
             console.log(
@@ -328,7 +417,7 @@ export function GeographicPhotoMap({
                 bounds,
                 {
                     padding: 50,
-                    maxZoom: 18,
+                    maxZoom: 17,
                 }
             );
 
@@ -344,13 +433,15 @@ export function GeographicPhotoMap({
     }, [
         photoNodes,
         coordinateSystem,
-        selectedPhoto,
+        showTrajectory,
+        mapLoaded,
     ]);
 
     useEffect(() => {
 
         if (
             !mapInstance.current ||
+            !mapLoaded ||
             !selectedPhoto
         ) {
             return;
@@ -378,40 +469,8 @@ export function GeographicPhotoMap({
     }, [
         selectedPhoto,
         coordinateSystem,
+        mapLoaded,
     ]);
-    // //
-    // // Change basemap
-    // //
-    // useEffect(() => {
-
-    //     if (!mapInstance.current) {
-    //         return;
-    //     }
-
-    //     console.log(
-    //         "SWITCHING BASEMAP",
-    //         basemap
-    //     );
-
-    //     mapInstance.current.setStyle(
-    //         "https://demotiles.maplibre.org/style.json"
-    //     );
-
-    //     mapInstance.current.once(
-    //         "styledata",
-    //         () => {
-
-    //             console.log(
-    //                 "STYLE LOADED",
-    //                 basemap
-    //             );
-
-    //             mapInstance.current?.resize();
-
-    //         }
-    //     );
-
-    // }, [basemap]);
 
     //
     // Change basemap
@@ -438,80 +497,91 @@ export function GeographicPhotoMap({
             >
                 Geographic Map
                 {" | "}
-                Nodes: {photoNodes.length}
+                Stations: {photoNodes.length}
                 {" | "}
                 CRS: {coordinateSystem}
             </div>
 
-            <button
-                onClick={() => {
-
-                    const bounds =
-                        new maplibregl.LngLatBounds();
-
-                    for (const photo of photoNodes) {
-
-                        const converted =
-                            ProjectionService.toWgs84(
-                                coordinateSystem,
-                                photo.x,
-                                photo.y
-                            );
-
-                        if (!converted) {
-                            continue;
-                        }
-
-                        bounds.extend([
-                            converted[0],
-                            converted[1],
-                        ]);
-                    }
-
-                    if (!bounds.isEmpty()) {
-
-                        console.log(
-                            "FIT EXTENTS CLICKED"
-                        );
-
-                        console.log(
-                            "SW",
-                            bounds.getSouthWest()
-                        );
-
-                        console.log(
-                            "NE",
-                            bounds.getNorthEast()
-                        );
-
-                        mapInstance.current?.fitBounds(
-                            bounds,
-                            {
-                                padding: 50,
-                                maxZoom: 18,
-                            }
-                        );
-
-                        setTimeout(
-                            () => {
-
-                                mapInstance.current?.resize();
-
-                            },
-                            250
-                        );
-                    }
+            <div
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 10,
+                    marginBottom: 8,
                 }}
             >
-                Fit Extents
-            </button>
+                <label
+                    style={{
+                        fontSize: 12,
+                    }}
+                >
+                    <input
+                        type="checkbox"
+                        checked={showTrajectory}
+                        onChange={e =>
+                            setShowTrajectory(
+                                e.target.checked
+                            )
+                        }
+                    />
+                    {" "}
+                    Trajectory
+                </label>
+
+                <button
+                    onClick={() => {
+
+                        const bounds =
+                            new maplibregl.LngLatBounds();
+
+                        for (const photo of photoNodes) {
+
+                            const converted =
+                                ProjectionService.toWgs84(
+                                    coordinateSystem,
+                                    photo.x,
+                                    photo.y
+                                );
+
+                            if (!converted) {
+                                continue;
+                            }
+
+                            bounds.extend([
+                                converted[0],
+                                converted[1],
+                            ]);
+                        }
+
+                        if (!bounds.isEmpty()) {
+
+                            mapInstance.current?.fitBounds(
+                                bounds,
+                                {
+                                    padding: 50,
+                                    maxZoom: 17,
+                                }
+                            );
+
+                            setTimeout(
+                                () => {
+                                    mapInstance.current?.resize();
+                                },
+                                250
+                            );
+                        }
+                    }}
+                >
+                    Fit Extents
+                </button>
+            </div>
 
             <div
                 ref={mapRef}
                 style={{
                     width: "100%",
                     height: "600px",
-                    border: "2px solid red",
+                    border: "1px solid #ccc",
                 }}
             />
 

@@ -31,18 +31,9 @@ export function PhotoListPanel(
         }
       />
 
-      <div>
-        {props.photoNodes.map(photo => (
-          <div
-            key={photo.id}
-            onClick={() =>
-              props.onPhotoSelected(photo)
-            }
-          >
-            {photo.imageName}
-          </div>
-        ))}
-      </div>
+<div>
+  Total Photos: {props.photoNodes.length}
+</div>
 
       <div>
         Node Count: {props.photoNodes.length}

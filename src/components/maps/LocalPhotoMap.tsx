@@ -55,6 +55,11 @@ export function LocalPhotoMap({
     });
 
     const [
+        showTrajectory,
+        setShowTrajectory,
+    ] = useState(true);
+
+    const [
         hoverPhoto,
         setHoverPhoto,
     ] = useState<PhotoNode | null>(
@@ -176,30 +181,6 @@ export function LocalPhotoMap({
 
         };
 
-    const zoomToSelected =
-        () => {
-
-            if (!selectedPhoto) {
-                return;
-            }
-
-            const photoX =
-                20 +
-                (selectedPhoto.x - minX) *
-                fitScale;
-
-            const photoY =
-                height -
-                20 -
-                (selectedPhoto.y - minY) *
-                fitScale;
-
-            setPosition({
-                x: width / 2 - photoX * scale,
-                y: height / 2 - photoY * scale,
-            });
-        };
-
     const fitExtents = () => {
 
         const projectWidth =
@@ -295,7 +276,7 @@ export function LocalPhotoMap({
 
                 <div>
 
-                    Photo Nodes:
+                    Stations:
                     {" "}
                     {photoNodes.length}
 
@@ -312,7 +293,7 @@ export function LocalPhotoMap({
                     {selectedPhoto && (
                         <>
                             {" | "}
-                            Selected:
+                            Station:
                             {" "}
                             {selectedPhoto.imageName}
 
@@ -339,20 +320,33 @@ export function LocalPhotoMap({
                     style={{
                         display: "flex",
                         gap: 10,
+                        alignItems: "center",
                     }}
                 >
+                    <label
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 4,
+                            fontSize: 12,
+                        }}
+                    >
+                        <input
+                            type="checkbox"
+                            checked={showTrajectory}
+                            onChange={event =>
+                                setShowTrajectory(
+                                    event.target.checked
+                                )
+                            }
+                        />
+                        Trajectory
+                    </label>
 
                     <button
                         onClick={fitExtents}
                     >
                         Fit Extents
-                    </button>
-
-                    <button
-                        onClick={zoomToSelected}
-                        disabled={!selectedPhoto}
-                    >
-                        Center On Selected
                     </button>
 
                 </div>
@@ -363,7 +357,7 @@ export function LocalPhotoMap({
                 style={{
                     position: "relative",
                     background:
-                        "#1e1e1e",
+                        "#f0f0f0",
                 }}
             >
 
@@ -398,7 +392,54 @@ export function LocalPhotoMap({
                 >
 
                     <Layer>
+                        {
+    showTrajectory &&
+    photoNodes.slice(1).map(
+                                (photo, index) => {
 
+                                    const previous =
+                                        photoNodes[index];
+
+                                    const x1 =
+                                        20 +
+                                        (previous.x - minX) *
+                                        fitScale;
+
+                                    const y1 =
+                                        height -
+                                        20 -
+                                        (previous.y - minY) *
+                                        fitScale;
+
+                                    const x2 =
+                                        20 +
+                                        (photo.x - minX) *
+                                        fitScale;
+
+                                    const y2 =
+                                        height -
+                                        20 -
+                                        (photo.y - minY) *
+                                        fitScale;
+
+                                    return (
+                                        <Line
+                                            key={`route-${photo.id}`}
+                                            points={[
+                                                x1,
+                                                y1,
+                                                x2,
+                                                y2,
+                                            ]}
+                                            stroke="#4a90e2"
+                                            strokeWidth={1}
+                                            opacity={0.5}
+                                            listening={false}
+                                        />
+                                    );
+                                }
+                            )
+                        }
                         {photoNodes.map(
                             photo => {
 
@@ -464,17 +505,6 @@ export function LocalPhotoMap({
                                                         : 2
                                                 }
                                                 lineCap="round"
-                                            />
-                                        )}
-
-
-                                        {selected && (
-                                            <Circle
-                                                x={x}
-                                                y={y}
-                                                radius={14}
-                                                stroke="white"
-                                                strokeWidth={2}
                                             />
                                         )}
 
