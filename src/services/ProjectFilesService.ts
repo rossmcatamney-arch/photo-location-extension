@@ -1,30 +1,35 @@
-import type {
-  ProjectFile,
-} from "../models/ProjectFile";
+import proj4 from "proj4";
 
 import {
-  trimbleProjectFilesService,
-} from "./TrimbleProjectFilesService";
+    COORDINATE_SYSTEMS,
+} from "./CoordinateSystemDatabase";
 
-export class ProjectFilesService {
-  public async getPhotoFolders(
-    projectId: string
-  ): Promise<ProjectFile[]> {
-    return trimbleProjectFilesService
-      .discoverFolders(
-        projectId
-      );
-  }
+export class ProjectionService {
 
-  public async getPoseCsvFiles(
-    projectId: string
-  ): Promise<ProjectFile[]> {
-    return trimbleProjectFilesService
-      .discoverCsvFiles(
-        projectId
-      );
-  }
+    static toWgs84(
+        coordinateSystem: string,
+        x: number,
+        y: number
+    ) {
+
+        const system =
+            COORDINATE_SYSTEMS.find(
+                s => s.code === coordinateSystem
+            );
+
+        if (!system) {
+            return null;
+        }
+
+        proj4.defs(
+            system.code,
+            system.proj4
+        );
+
+        return proj4(
+            system.code,
+            "WGS84",
+            [x, y]
+        );
+    }
 }
-
-export const projectFilesService =
-  new ProjectFilesService();

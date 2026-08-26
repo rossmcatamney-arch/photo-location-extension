@@ -4,6 +4,10 @@ import {
 } from "react";
 
 import {
+  COORDINATE_SYSTEMS,
+} from "../services/CoordinateSystemDatabase";
+
+import {
   PhotoMapPanel,
 } from "./PhotoMapPanel";
 
@@ -152,7 +156,7 @@ export function PhotoLocationHome({
     basemap,
     setBasemap,
   ] = useState(
-    "satellite"
+    "street"
   );
 
   const [
@@ -1155,33 +1159,20 @@ export function PhotoLocationHome({
                 Local Coordinates
               </option>
 
-              <option value="MGA2020_ZONE_50">
-                MGA2020 Zone 50
+              <option value="LOCAL">
+                Local Coordinates
               </option>
 
-              <option value="MGA2020_ZONE_51">
-                MGA2020 Zone 51
-              </option>
-
-              <option value="MGA2020_ZONE_52">
-                MGA2020 Zone 52
-              </option>
-
-              <option value="MGA2020_ZONE_53">
-                MGA2020 Zone 53
-              </option>
-
-              <option value="MGA2020_ZONE_54">
-                MGA2020 Zone 54
-              </option>
-
-              <option value="MGA2020_ZONE_55">
-                MGA2020 Zone 55
-              </option>
-
-              <option value="MGA2020_ZONE_56">
-                MGA2020 Zone 56
-              </option>
+              {
+                COORDINATE_SYSTEMS.map(system => (
+                  <option
+                    key={system.code}
+                    value={system.code}
+                  >
+                    {system.name}
+                  </option>
+                ))
+              }
             </select>
           </div>
         </div>

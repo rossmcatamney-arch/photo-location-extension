@@ -227,22 +227,22 @@ export function LocalPhotoMap({
 
     };
 
-useEffect(() => {
+    useEffect(() => {
 
-    if (
-        photoNodes.length === 0 ||
-        initialFitDone.current
-    ) {
-        return;
-    }
+        if (
+            photoNodes.length === 0 ||
+            initialFitDone.current
+        ) {
+            return;
+        }
 
-    fitExtents();
+        fitExtents();
 
-    initialFitDone.current = true;
+        initialFitDone.current = true;
 
-}, [
-    photoNodes,
-]);
+    }, [
+        photoNodes,
+    ]);
 
     useEffect(() => {
 
@@ -398,6 +398,9 @@ useEffect(() => {
                     width={width}
                     height={height}
                     draggable
+                    style={{
+                        cursor: "grab",
+                    }}
                     x={position.x}
                     y={position.y}
                     scaleX={scale}
@@ -410,14 +413,23 @@ useEffect(() => {
                                 e.target.y(),
                         })
                     }
-                    onDragEnd={e =>
-                        setPosition({
-                            x:
-                                e.target.x(),
-                            y:
-                                e.target.y(),
-                        })
+                    onDragStart={() =>
+                        document.body.style.cursor =
+                        "grabbing"
                     }
+                    onDragEnd={e => {
+
+                        if (stageRef.current) {
+                            stageRef.current.container().style.cursor =
+                                "grab";
+                        }
+
+                        setPosition({
+                            x: e.target.x(),
+                            y: e.target.y(),
+                        });
+
+                    }}
                     onWheel={
                         handleWheel
                     }
@@ -566,12 +578,25 @@ useEffect(() => {
                                             onClick={() =>
                                                 onPhotoSelected(photo)
                                             }
-                                            onMouseEnter={() =>
-                                                setHoverPhoto(photo)
-                                            }
-                                            onMouseLeave={() =>
-                                                setHoverPhoto(null)
-                                            }
+                                            onMouseEnter={() => {
+
+                                                if (stageRef.current) {
+                                                    stageRef.current.container().style.cursor =
+                                                        "pointer";
+                                                }
+
+                                                setHoverPhoto(photo);
+
+                                            }}
+
+                                            onMouseLeave={() => {
+
+                                                document.body.style.cursor =
+                                                    "grab";
+
+                                                setHoverPhoto(null);
+
+                                            }}
                                         />
 
                                     </React.Fragment>

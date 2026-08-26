@@ -2,6 +2,7 @@ export class BasemapService {
 
     static getStyle(
         basemap: string,
+        
     ) {
 
         switch (basemap) {
@@ -28,31 +29,31 @@ export class BasemapService {
                     ],
                 };
 
-            case "street":
+case "street":
 
-            default:
+default:
 
-                return {
-                    version: 8 as const,
-                    sources: {
-                        osm: {
-                            type: "raster",
-                            tiles: [
-                                "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                                "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                                "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                            ],
-                            tileSize: 256,
-                        },
-                    },
-                    layers: [
-                        {
-                            id: "osm",
-                            type: "raster",
-                            source: "osm",
-                        },
-                    ],
-                };
+    return {
+        version: 8 as const,
+        sources: {
+            osm: {
+                type: "raster",
+                tiles: [
+                    "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                ],
+                tileSize: 256,
+            },
+        },
+        layers: [
+            {
+                id: "osm",
+                type: "raster",
+                source: "osm",
+            },
+        ],
+    };
 
         }
 
