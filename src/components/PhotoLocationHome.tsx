@@ -4,7 +4,7 @@ import {
 } from "react";
 
 import {
-  COORDINATE_SYSTEMS,
+    COORDINATE_SYSTEMS,
 } from "../services/CoordinateSystemDatabase";
 
 import {
@@ -1155,10 +1155,6 @@ export function PhotoLocationHome({
                 })
               }
             >
-              <option value="LOCAL">
-                Local Coordinates
-              </option>
-
               <option value="LOCAL">
                 Local Coordinates
               </option>
