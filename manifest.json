@@ -1,8 +1,8 @@
 {
   "icon": "https://rossmcatamney-arch.github.io/photo-location-extension/icon.png",
-  "title": "Photo Location",
+  "title": "Photo Mapper",
   "url": "https://rossmcatamney-arch.github.io/photo-location-extension/",
-  "description": "Photo location viewer for Trimble Connect projects",
+  "description": "Map, navigate and explore project imagery within Trimble Connect.",
   "configCommand": "do_config",
   "enabled": true,
   "extensionType": [
